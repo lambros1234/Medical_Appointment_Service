@@ -21,7 +21,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank
     @Size(max = 20)
@@ -36,11 +36,10 @@ public class User {
     @Size(max = 120)
     private String password;
 
-    @NotBlank
+    @Column(length = 20, nullable = true)
     private String address;
 
-    @NotBlank
-    @Column(length = 15, unique = true)
+    @Column(length = 15, unique = true, nullable = true)
     private String phone;
 
     private boolean enabled = false;
@@ -62,25 +61,31 @@ public class User {
 
     public User() {}
 
-    public User(String address, List<Appointment> appointments, Doctor_Profile doctorProfile, String email, boolean enabled, Integer id, String password, Patient_Profile patientProfile, String phone, Set<Role> roles, String username) {
-        this.address = address;
-        this.appointments = appointments;
-        this.doctorProfile = doctorProfile;
-        this.email = email;
-        this.enabled = enabled;
+    public User(Long id, String username, String email, String password, String address, String phone, boolean enabled, Set<Role> roles, Doctor_Profile doctorProfile, Patient_Profile patientProfile, List<Appointment> appointments) {
         this.id = id;
-        this.password = password;
-        this.patientProfile = patientProfile;
-        this.phone = phone;
-        this.roles = roles;
         this.username = username;
+        this.email = email;
+        this.password = password;
+        this.address = address;
+        this.phone = phone;
+        this.enabled = enabled;
+        this.roles = roles;
+        this.doctorProfile = doctorProfile;
+        this.patientProfile = patientProfile;
+        this.appointments = appointments;
     }
 
-    public Integer getId() {
+    public User(String username, String email, String encode) {
+        this.username = username;
+        this.email = email;
+        this.password = encode;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -156,7 +161,7 @@ public class User {
         this.address = address;
     }
 
-    public @NotBlank String getPhone() {
+    public String getPhone() {
         return phone;
     }
 
