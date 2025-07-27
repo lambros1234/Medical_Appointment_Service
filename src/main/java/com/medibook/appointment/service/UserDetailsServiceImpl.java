@@ -1,25 +1,18 @@
 package com.medibook.appointment.service;
 
-
-
 import com.medibook.appointment.entities.Role;
 import com.medibook.appointment.entities.User;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -42,12 +35,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User with username: " +username +" not found !");
         else {
             User user = opt.get();
-
+            if(!user.isEnabled()) {
+                throw new UsernameNotFoundException("User not approved by admin");
+            }
             return UserDetailsImpl.build(user);
         }
     }
-
-
 
     @Transactional
     public Long saveUser(User user) {
@@ -65,24 +58,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return user.getId();
     }
 
-    @Transactional
-    public Long updateUser(User user) {
-        user = userRepository.save(user);
-        return user.getId();
-    }
-
-    @Transactional
-    public Object getUsers() {
-        return userRepository.findAll();
-    }
-
-    public Object getUser(Long userId) {
-        return userRepository.findById(userId).get();
-    }
-
-    @Transactional
-    public void updateOrInsertRole(Role role) {
-        roleRepository.updateOrInsert(role);
-    }
 
 }

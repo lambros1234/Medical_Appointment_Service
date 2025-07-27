@@ -49,9 +49,13 @@ public class AuthController {
     public void setup() {
         Role role_user = new Role("ROLE_USER");
         Role role_admin = new Role("ROLE_ADMIN");
+        Role role_doctor = new Role("ROLE_DOCTOR");
+        Role role_patient = new Role("ROLE_PATIENT");
 
         roleRepository.updateOrInsert(role_user);
         roleRepository.updateOrInsert(role_admin);
+        roleRepository.updateOrInsert(role_doctor);
+        roleRepository.updateOrInsert(role_patient);
     }
 
     @PostMapping("/signin")

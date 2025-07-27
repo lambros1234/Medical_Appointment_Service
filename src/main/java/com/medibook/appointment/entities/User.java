@@ -170,7 +170,7 @@ public class User {
     }
 
     public boolean isEnabled() {
-        return enabled;
+            return enabled;
     }
 
     public void setEnabled(boolean enabled) {
