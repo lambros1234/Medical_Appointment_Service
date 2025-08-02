@@ -8,7 +8,7 @@ public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column
     private String date;
@@ -34,10 +34,9 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(String date, String description, int id, AppointmentStatus status, String time) {
+    public Appointment(String date, String description, AppointmentStatus status, String time) {
         this.date = date;
         this.description = description;
-        this.id = id;
         this.status = status;
         this.time = time;
     }
@@ -58,11 +57,11 @@ public class Appointment {
         this.description = description;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -80,5 +79,21 @@ public class Appointment {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Doctor_Profile getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor_Profile doctor) {
+        this.doctor = doctor;
     }
 }

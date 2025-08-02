@@ -41,10 +41,10 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long user_id) {
         boolean result = this.userService.deleteUserById(user_id);
         if (result) {
-            return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
+            return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
         }
         else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
 

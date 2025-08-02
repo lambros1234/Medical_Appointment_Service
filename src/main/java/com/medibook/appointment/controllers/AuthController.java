@@ -1,8 +1,12 @@
 package com.medibook.appointment.controllers;
 
+import com.medibook.appointment.entities.Doctor_Profile;
+import com.medibook.appointment.entities.Patient_Profile;
 import com.medibook.appointment.entities.User;
 import com.medibook.appointment.payload.request.LoginRequest;
 import com.medibook.appointment.payload.response.JwtResponse;
+import com.medibook.appointment.repositories.DoctorProfileRepository;
+import com.medibook.appointment.repositories.PatientProfileRepository;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
 import com.medibook.appointment.service.UserDetailsImpl;
@@ -36,13 +40,18 @@ public class AuthController {
     RoleRepository roleRepository;
     BCryptPasswordEncoder encoder;
     JwtUtils jwtUtils;
+    DoctorProfileRepository doctorProfileRepository;
+    PatientProfileRepository patientProfileRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils) {
+
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils, DoctorProfileRepository doctorProfileRepository, PatientProfileRepository patientProfileRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.jwtUtils = jwtUtils;
+        this.doctorProfileRepository = doctorProfileRepository;
+        this.patientProfileRepository = patientProfileRepository;
     }
 
     @PostConstruct
@@ -110,7 +119,7 @@ public class AuthController {
             roles.add(userRole);
         } else {
             strRoles.forEach(role -> {
-                switch (role) {
+                switch (role.toLowerCase()) {
                     case "admin":
                         Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -123,6 +132,16 @@ public class AuthController {
                         roles.add(modRole);
 
                         break;
+                    case "patient":
+                        Role patientRole = roleRepository.findByName("ROLE_PATIENT")
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(patientRole);
+                        break;
+                    case "doctor":
+                        Role doctorRole = roleRepository.findByName("ROLE_DOCTOR")
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(doctorRole);
+                        break;
                     default:
                         Role userRole = roleRepository.findByName("ROLE_USER")
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
@@ -132,6 +151,26 @@ public class AuthController {
         }
 
         user.setRoles(roles);
+        userRepository.save(user);
+
+        // Profile creation logic after user is saved
+        for (Role role : roles) {
+            if (role.getName().equals("ROLE_PATIENT")) {
+                Patient_Profile patientProfile = new Patient_Profile();
+                patientProfile.setPatient(user);
+                patientProfileRepository.save(patientProfile);
+                user.setPatientProfile(patientProfile);
+            }
+
+            if (role.getName().equals("ROLE_DOCTOR")) {
+                Doctor_Profile doctorProfile = new Doctor_Profile();
+                doctorProfile.setUser(user);
+                doctorProfileRepository.save(doctorProfile);
+                user.setDoctorProfile(doctorProfile);
+            }
+        }
+
+        // Save the user again to link the profiles
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
