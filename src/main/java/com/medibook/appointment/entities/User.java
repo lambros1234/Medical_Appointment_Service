@@ -1,13 +1,20 @@
 package com.medibook.appointment.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users",
@@ -18,7 +25,7 @@ import java.util.Set;
         })
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,18 +58,20 @@ public class User {
     private Set<Role> roles = new HashSet<>();  // DOCTOR, PATIENT, ADMIN
 
     @OneToOne(mappedBy = "doctor")
+    @JsonIgnore
     private Doctor_Profile doctorProfile;
 
     @OneToOne(mappedBy = "patient")
+    @JsonIgnore
     private Patient_Profile patientProfile;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @JsonIgnore
     private List<Appointment> appointments;
 
     public User() {}
 
-    public User(Long id, String username, String email, String password, String address, String phone, boolean enabled, Set<Role> roles, Doctor_Profile doctorProfile, Patient_Profile patientProfile, List<Appointment> appointments) {
-        this.id = id;
+    public User(String username, String email, String password, String address, String phone, boolean enabled, Set<Role> roles, Doctor_Profile doctorProfile, Patient_Profile patientProfile, List<Appointment> appointments) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -181,4 +190,29 @@ public class User {
     public String toString() {
         return username;
     }
+
+    // === UserDetails methods for Spring Security ===
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // customize if needed
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // customize if needed
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // customize if needed
+    }
+
 }

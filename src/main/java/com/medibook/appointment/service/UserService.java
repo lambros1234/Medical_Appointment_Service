@@ -5,6 +5,8 @@ import com.medibook.appointment.entities.User;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +45,12 @@ public class UserService {
 
     public Optional<User> getUser(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    @Transactional
+    public User findUserByEmail(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public boolean approveUser(Long id) {

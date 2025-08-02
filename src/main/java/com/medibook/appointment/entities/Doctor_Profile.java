@@ -1,5 +1,6 @@
 package com.medibook.appointment.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -23,10 +24,12 @@ public class Doctor_Profile {
     private List<Specialty> specialties;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Availability> availabilities;
 
     @OneToMany(mappedBy = "doctor")
-    private List<Appointment> appointments;;
+    @JsonIgnore
+    private List<Appointment> appointments;
 
     public Doctor_Profile() {}
 

@@ -1,5 +1,6 @@
 package com.medibook.appointment.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -14,11 +15,12 @@ public class Patient_Profile {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User patient;
 
     private LocalDate birthDate;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String gender;
 
     @Enumerated(EnumType.STRING)
