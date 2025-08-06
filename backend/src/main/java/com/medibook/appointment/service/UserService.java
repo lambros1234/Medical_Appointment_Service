@@ -17,10 +17,12 @@ public class UserService {
 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,  EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -72,6 +74,10 @@ public class UserService {
     @Transactional
     public void updateOrInsertRole(Role role) {
         roleRepository.updateOrInsert(role);
+    }
+
+    public void notifyUser(String to,  String subject, String body) {
+        emailService.sendEmail(to, subject, body);
     }
 
 }

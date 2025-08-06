@@ -72,6 +72,7 @@ public class UserController {
             User user = optionalUser.get();
             user.setEnabled(true);
             userService.updateUser(user);
+            userService.notifyUser(user.getEmail(), "Account Approval", "Your account has been approved!");
             return ResponseEntity.ok("User approved successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");

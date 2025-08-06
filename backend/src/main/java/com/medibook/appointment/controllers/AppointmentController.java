@@ -1,14 +1,10 @@
 package com.medibook.appointment.controllers;
 
-
 import com.medibook.appointment.config.SecurityUtils;
 import com.medibook.appointment.dto.AppointmentRequestDTO;
 import com.medibook.appointment.dto.AppointmentResponseDTO;
 import com.medibook.appointment.entities.*;
-import com.medibook.appointment.service.AppointmentService;
-import com.medibook.appointment.service.DoctorProfileService;
-import com.medibook.appointment.service.UserDetailsImpl;
-import com.medibook.appointment.service.UserService;
+import com.medibook.appointment.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,12 +20,14 @@ public class AppointmentController {
     private final UserService userService;
     private final AppointmentService appointmentService;
     private final DoctorProfileService  doctorProfileService;
+    private final EmailService emailService;
 
 
-    public AppointmentController(AppointmentService appointmentService, UserService userService, DoctorProfileService doctorProfileService) {
+    public AppointmentController(AppointmentService appointmentService, UserService userService, DoctorProfileService doctorProfileService,  EmailService emailService) {
         this.appointmentService = appointmentService;
         this.userService = userService;
         this.doctorProfileService = doctorProfileService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/my")
@@ -145,6 +143,44 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
+
+    @PatchMapping("/{appointment_id}/cancel")
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
+        Optional<Appointment> optionalAppointment= appointmentService.getAppointmentById(appointment_id);
+        if(optionalAppointment.isPresent()) {
+            Appointment appointment = optionalAppointment.get();
+
+            // Cancel the appointment
+            appointment.setStatus(AppointmentStatus.CANCELLED);
+            appointmentService.saveAppointment(appointment);
+
+            // Get doctor and patient
+            User doctor = appointment.getDoctor().getUser();
+            User patient = appointment.getUser();
+
+            // Prep email
+            String subject = "Appointment Cancelled";
+            String body = String.format(
+                    "The appointment scheduled for %s with Dr. %s has been cancelled.\n\nDetails:\nDate: %s\nTime: %s\n\nMediBook Team",
+                    appointment.getDate(),
+                    doctor.getUsername(),
+                    appointment.getDate(),
+                    appointment.getTime()
+            );
+
+            // Send Emails
+            emailService.sendEmail(doctor.getEmail(), subject, "An appointment with " + patient.getUsername() + " has been cancelled.\n\n" + body);
+            emailService.sendEmail(patient.getEmail(), subject, "Your appointment with Dr. " + doctor.getUsername() + " has been cancelled.\n\n" + body);
+
+
+
+            return  ResponseEntity.ok("Appointment cancelled successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found.");
+        }
+    }
+
+
 
 
     // Optional: Filtering
