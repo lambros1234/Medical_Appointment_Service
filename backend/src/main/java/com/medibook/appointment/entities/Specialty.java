@@ -1,5 +1,6 @@
 package com.medibook.appointment.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -18,6 +19,7 @@ public class Specialty {
     private String name;
 
     @ManyToMany(mappedBy = "specialties")
+    @JsonIgnore
     private List<Doctor_Profile> doctors;
 
     public Specialty() {}

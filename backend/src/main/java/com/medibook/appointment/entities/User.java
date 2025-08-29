@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
         })
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "user_type")
-public class User implements UserDetails {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,7 +43,15 @@ public class User implements UserDetails {
     @Size(max = 120)
     private String password;
 
-    @Column(length = 20, nullable = true)
+    @NotBlank
+    @Size(max = 50)
+    private String firstName;
+
+    @NotBlank
+    @Size(max = 50)
+    private String lastName;
+
+    @Column(length = 75, nullable = true)
     private String address;
 
     @Column(length = 15, unique = true, nullable = true)
@@ -57,15 +65,15 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();  // DOCTOR, PATIENT, ADMIN
 
-    @OneToOne(mappedBy = "doctor")
+    @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
     @JsonIgnore
     private Doctor_Profile doctorProfile;
 
-    @OneToOne(mappedBy = "patient")
+    @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL)
     @JsonIgnore
     private Patient_Profile patientProfile;
 
-    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Appointment> appointments;
 
@@ -186,33 +194,24 @@ public class User implements UserDetails {
         this.enabled = enabled;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
     @Override
     public String toString() {
         return username;
     }
-
-    // === UserDetails methods for Spring Security ===
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // customize if needed
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true; // customize if needed
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // customize if needed
-    }
-
 }

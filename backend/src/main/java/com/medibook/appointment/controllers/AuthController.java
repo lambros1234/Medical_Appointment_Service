@@ -1,19 +1,21 @@
 package com.medibook.appointment.controllers;
 
-import com.medibook.appointment.entities.Doctor_Profile;
-import com.medibook.appointment.entities.Patient_Profile;
-import com.medibook.appointment.entities.User;
+import com.medibook.appointment.entities.*;
 import com.medibook.appointment.payload.request.LoginRequest;
 import com.medibook.appointment.payload.response.JwtResponse;
 import com.medibook.appointment.repositories.DoctorProfileRepository;
 import com.medibook.appointment.repositories.PatientProfileRepository;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
+import com.medibook.appointment.service.SpecialtyService;
 import com.medibook.appointment.service.UserDetailsImpl;
+import com.medibook.appointment.service.UserService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,11 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.medibook.appointment.payload.request.SignupRequest;
 import com.medibook.appointment.payload.response.MessageResponse;
-import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
-import com.medibook.appointment.entities.Role;
+
 import com.medibook.appointment.config.JwtUtils;
 
 @RestController
@@ -42,9 +43,11 @@ public class AuthController {
     JwtUtils jwtUtils;
     DoctorProfileRepository doctorProfileRepository;
     PatientProfileRepository patientProfileRepository;
+    UserService userService;
+    SpecialtyService specialtyService;
 
 
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils, DoctorProfileRepository doctorProfileRepository, PatientProfileRepository patientProfileRepository) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils, DoctorProfileRepository doctorProfileRepository, PatientProfileRepository patientProfileRepository, UserService userService, SpecialtyService specialtyService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -52,6 +55,8 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
         this.doctorProfileRepository = doctorProfileRepository;
         this.patientProfileRepository = patientProfileRepository;
+        this.userService = userService;
+        this.specialtyService = specialtyService;
     }
 
     @PostConstruct
@@ -69,30 +74,62 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        System.out.println("authentication");
+        // Step 1: Load the user manually
+        Optional<User> user = userService.findUserByUsername(loginRequest.getUsername());
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        System.out.println("authentication: " + authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println("post authentication");
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        System.out.println("jwt: " + jwt);
+        if(user.isPresent()) {
+            // Step 2: Check if approved
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+            User newUser = user.get();
 
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+            if (!newUser.isEnabled()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Account not approved yet"));
+            }
+
+            // Step 3: Authenticate credentials
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                loginRequest.getUsername(),
+                                loginRequest.getPassword()
+                        )
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                String jwt = jwtUtils.generateJwtToken(authentication);
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                List<String> roles = userDetails.getAuthorities().stream()
+                        .map(item -> item.getAuthority())
+                        .collect(Collectors.toList());
+
+                User User = userService.findUserByUsername(userDetails.getUsername()).get();
+                Integer patientProfileId = User.getPatientProfile() != null ? User.getPatientProfile().getId() : null;
+                Integer doctorProfileId = User.getDoctorProfile() != null ? User.getDoctorProfile().getId() : null;
+
+                return  ResponseEntity.ok(new JwtResponse(jwt,
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles, patientProfileId,
+                        doctorProfileId));
+
+            } catch (BadCredentialsException e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Invalid username or password"));
+            }
+        } else {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found!"));
+        }
+
     }
+
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        System.out.println("signUpRequest: " + signUpRequest.toString());
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
@@ -110,8 +147,16 @@ public class AuthController {
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
 
+        // Set extra info
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
+        user.setPhone(signUpRequest.getPhone());
+        user.setAddress(signUpRequest.getAddress());
+
         Set<String> strRoles = signUpRequest.getRole();
+        System.out.println(strRoles);
         Set<Role> roles = new HashSet<>();
+
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName("ROLE_USER")
@@ -151,6 +196,7 @@ public class AuthController {
         }
 
         user.setRoles(roles);
+
         userRepository.save(user);
 
         // Profile creation logic after user is saved
@@ -165,8 +211,17 @@ public class AuthController {
             if (role.getName().equals("ROLE_DOCTOR")) {
                 Doctor_Profile doctorProfile = new Doctor_Profile();
                 doctorProfile.setUser(user);
+
+                // get specialty (create if not exists)
+                if (signUpRequest.getSpecialty() != null && !signUpRequest.getSpecialty().isEmpty()) {
+                    Specialty specialty = specialtyService.getOrCreateSpecialty(signUpRequest.getSpecialty());
+                    List<Specialty> specialties = new ArrayList<>();
+                    specialties.add(specialty);
+                    doctorProfile.setSpecialties(specialties);
+                }
                 doctorProfileRepository.save(doctorProfile);
                 user.setDoctorProfile(doctorProfile);
+
             }
         }
 

@@ -1,7 +1,11 @@
 package com.medibook.appointment.service;
 
+import com.medibook.appointment.dto.DoctorDTO;
+import com.medibook.appointment.dto.UserDTO;
+import com.medibook.appointment.entities.Doctor_Profile;
 import com.medibook.appointment.entities.Role;
 import com.medibook.appointment.entities.User;
+import com.medibook.appointment.mapper.UserMapper;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -9,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,10 +22,12 @@ public class UserService {
 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
+    private UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,  UserMapper userMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
     }
 
     @Transactional
@@ -53,6 +60,11 @@ public class UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    @Transactional
+    public Optional<User> findUserByUsername(String username)  {
+        return userRepository.findByUsername(username);
+    }
+
     public boolean approveUser(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
 
@@ -72,6 +84,15 @@ public class UserService {
     @Transactional
     public void updateOrInsertRole(Role role) {
         roleRepository.updateOrInsert(role);
+    }
+
+    public List<UserDTO> getUsersDTO() {
+        List<User> users = userRepository.findAll();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for(User user : users) {
+            userDTOs.add(userMapper.toDTO(user));
+        }
+        return userDTOs;
     }
 
 }

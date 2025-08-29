@@ -1,5 +1,6 @@
 package com.medibook.appointment.controllers;
 
+import com.medibook.appointment.dto.UserDTO;
 import com.medibook.appointment.entities.Role;
 import com.medibook.appointment.entities.User;
 import com.medibook.appointment.repositories.RoleRepository;
@@ -26,8 +27,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<UserDTO> getUsers() {
+        return userService.getUsersDTO();
     }
 
     @GetMapping("{user_id}")

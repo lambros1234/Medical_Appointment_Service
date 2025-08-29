@@ -21,6 +21,7 @@ public class Doctor_Profile {
     @JoinTable(name = "doctor_specialties",
             joinColumns = @JoinColumn(name = "doctor_id"),
             inverseJoinColumns = @JoinColumn(name = "specialty_id"))
+    @JsonIgnore
     private List<Specialty> specialties;
 
     @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)

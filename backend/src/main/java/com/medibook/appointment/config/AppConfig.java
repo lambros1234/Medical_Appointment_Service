@@ -46,6 +46,8 @@ public class AppConfig {
                 admin.setUsername("admin1");
                 admin.setEmail("admin1@example.com");
                 admin.setPassword(encoder.encode("admin123"));
+                admin.setLastName("Admin");
+                admin.setFirstName("Admin");
                 admin.setEnabled(true);
                 admin.setRoles(Set.of(adminRole));
 
