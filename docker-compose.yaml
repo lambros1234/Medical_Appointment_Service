@@ -1,15 +1,15 @@
-version: '3.8'
-
 services:
   app:
-    build: .
+    build: ./backend
     container_name: medical_appointment_service_app
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgres://postgres:password@your-db-vm-ip:5432/medical_appointments
-      - MAIL_HOST=mailhog
-      - MAIL_PORT=1025
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://{{ db_host }}:{{ db_port }}/medical_appointments
+      - SPRING_DATASOURCE_USERNAME={{ db_user }}
+      - SPRING_DATASOURCE_PASSWORD={{ db_password }}
+      - SPRING_MAIL_HOST={{ mail_host }}
+      - SPRING_MAIL_PORT={{ mail_port }}
     depends_on:
       - mailhog
 
@@ -19,7 +19,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://{{ backend_host }}:8000
 
   mailhog:
     image: mailhog/mailhog
