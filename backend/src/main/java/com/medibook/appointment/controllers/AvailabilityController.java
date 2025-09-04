@@ -49,9 +49,6 @@ public class AvailabilityController {
         return ResponseEntity.ok(dtos);
     }
 
-
-
-    // Helper mapper
     private AvailabilityDTO mapToDTO(Availability a) {
         AvailabilityDTO dto = new AvailabilityDTO();
         dto.setDayOfWeek(a.getDayOfWeek().toString());

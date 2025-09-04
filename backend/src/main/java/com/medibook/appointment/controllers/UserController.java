@@ -4,6 +4,7 @@ import com.medibook.appointment.dto.UserDTO;
 import com.medibook.appointment.entities.Role;
 import com.medibook.appointment.entities.User;
 import com.medibook.appointment.repositories.RoleRepository;
+import com.medibook.appointment.service.EmailService;
 import com.medibook.appointment.service.UserDetailsServiceImpl;
 import com.medibook.appointment.service.UserService;
 import jakarta.validation.Valid;
@@ -20,10 +21,12 @@ public class UserController {
 
     private UserService userService;
     private RoleRepository roleRepository;
+    private final EmailService emailService;
 
-    public UserController(UserService userService,  RoleRepository roleRepository) {
+    public UserController(UserService userService,  RoleRepository roleRepository,  EmailService emailService) {
         this.userService = userService;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -73,6 +76,7 @@ public class UserController {
             User user = optionalUser.get();
             user.setEnabled(true);
             userService.updateUser(user);
+            emailService.sendApprovalStatusEmail(user.getEmail()); // Send email to inform user his account has been approved
             return ResponseEntity.ok("User approved successfully!");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");

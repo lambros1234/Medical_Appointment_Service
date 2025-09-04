@@ -7,6 +7,7 @@ import com.medibook.appointment.repositories.DoctorProfileRepository;
 import com.medibook.appointment.repositories.PatientProfileRepository;
 import com.medibook.appointment.repositories.RoleRepository;
 import com.medibook.appointment.repositories.UserRepository;
+import com.medibook.appointment.service.EmailService;
 import com.medibook.appointment.service.SpecialtyService;
 import com.medibook.appointment.service.UserDetailsImpl;
 import com.medibook.appointment.service.UserService;
@@ -45,9 +46,9 @@ public class AuthController {
     PatientProfileRepository patientProfileRepository;
     UserService userService;
     SpecialtyService specialtyService;
+    EmailService  emailService;
 
-
-    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils, DoctorProfileRepository doctorProfileRepository, PatientProfileRepository patientProfileRepository, UserService userService, SpecialtyService specialtyService) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder encoder, JwtUtils jwtUtils, DoctorProfileRepository doctorProfileRepository, PatientProfileRepository patientProfileRepository, UserService userService, SpecialtyService specialtyService, EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -57,6 +58,7 @@ public class AuthController {
         this.patientProfileRepository = patientProfileRepository;
         this.userService = userService;
         this.specialtyService = specialtyService;
+        this.emailService = emailService;
     }
 
     @PostConstruct
@@ -81,12 +83,10 @@ public class AuthController {
             // Step 2: Check if approved
 
             User newUser = user.get();
-
             if (!newUser.isEnabled()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "Account not approved yet"));
             }
-
             // Step 3: Authenticate credentials
             try {
                 Authentication authentication = authenticationManager.authenticate(
@@ -95,7 +95,6 @@ public class AuthController {
                                 loginRequest.getPassword()
                         )
                 );
-
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 String jwt = jwtUtils.generateJwtToken(authentication);
@@ -154,7 +153,6 @@ public class AuthController {
         user.setAddress(signUpRequest.getAddress());
 
         Set<String> strRoles = signUpRequest.getRole();
-        System.out.println(strRoles);
         Set<Role> roles = new HashSet<>();
 
 
@@ -227,6 +225,7 @@ public class AuthController {
 
         // Save the user again to link the profiles
         userRepository.save(user);
+        emailService.sendRegistrationEmail(user.getEmail());
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }

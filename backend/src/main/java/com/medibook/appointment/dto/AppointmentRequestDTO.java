@@ -1,12 +1,15 @@
 package com.medibook.appointment.dto;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 public class AppointmentRequestDTO {
     private Long doctorId;
-    private String date;
-    private String time;
+    private LocalDate date;
+    private LocalTime time;
     private String description;
 
-    public AppointmentRequestDTO(Long doctorId, String time, String description, String date) {
+    public AppointmentRequestDTO(Long doctorId, LocalTime time, String description, LocalDate date) {
         this.doctorId = doctorId;
         this.time = time;
         this.description = description;
@@ -23,19 +26,19 @@ public class AppointmentRequestDTO {
         this.doctorId = doctorId;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public String getTime() {
+    public LocalTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 

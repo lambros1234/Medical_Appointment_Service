@@ -23,19 +23,24 @@ public class UserService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private UserMapper userMapper;
+    EmailService emailService;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository,  UserMapper userMapper) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,  UserMapper userMapper,  EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+        this.emailService = emailService;
     }
 
     @Transactional
     public boolean deleteUserById(final Long user_id) {
-        final Optional<User> studentOptional = this.userRepository.findById(user_id);
-        if (studentOptional.isEmpty()) {
+        final Optional<User> userOptional = this.userRepository.findById(user_id);
+        if (userOptional.isEmpty()) {
             return false;
         }
+        User user = userOptional.get();
+        emailService.sendDeleteEmail(user.getEmail()); // Send Delete email
+
         this.userRepository.deleteById(user_id);
         return true;
     }

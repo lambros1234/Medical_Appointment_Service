@@ -13,7 +13,6 @@ export default function DoctorsList() {
       try {
         const data = await getDoctors();
         setDoctors(data);
-        console.log(data)
       } catch (error) {
         console.error("Error fetching doctors:", error);
       } finally {

@@ -1,11 +1,13 @@
 package com.medibook.appointment.repositories;
 
+import com.medibook.appointment.entities.Appointment;
 import com.medibook.appointment.entities.Availability;
 import com.medibook.appointment.entities.Doctor_Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 

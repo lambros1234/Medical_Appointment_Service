@@ -5,15 +5,15 @@ import com.medibook.appointment.config.SecurityUtils;
 import com.medibook.appointment.dto.AppointmentRequestDTO;
 import com.medibook.appointment.dto.AppointmentResponseDTO;
 import com.medibook.appointment.entities.*;
-import com.medibook.appointment.service.AppointmentService;
-import com.medibook.appointment.service.DoctorProfileService;
-import com.medibook.appointment.service.UserDetailsImpl;
-import com.medibook.appointment.service.UserService;
+import com.medibook.appointment.service.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -24,12 +24,14 @@ public class AppointmentController {
     private final UserService userService;
     private final AppointmentService appointmentService;
     private final DoctorProfileService  doctorProfileService;
+    private final EmailService emailService;
 
 
-    public AppointmentController(AppointmentService appointmentService, UserService userService, DoctorProfileService doctorProfileService) {
+    public AppointmentController(AppointmentService appointmentService, UserService userService, DoctorProfileService doctorProfileService,  EmailService emailService) {
         this.appointmentService = appointmentService;
         this.userService = userService;
         this.doctorProfileService = doctorProfileService;
+        this.emailService = emailService;
     }
 
     @GetMapping("/my")
@@ -80,8 +82,6 @@ public class AppointmentController {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             User user = userService.findUserByEmail(userDetails.getEmail());
 
-            System.out.println("Received doctor ID: " + dto.getDoctorId());
-
             Optional<Doctor_Profile> optionalDoctor = doctorProfileService.findDoctorProfileById(dto.getDoctorId());
             if (optionalDoctor.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Doctor not found.");
@@ -90,12 +90,16 @@ public class AppointmentController {
             Appointment appointment = new Appointment();
             appointment.setUser(user);
             appointment.setDoctor(optionalDoctor.get());
+
             appointment.setDate(dto.getDate());
             appointment.setTime(dto.getTime());
+
+
             appointment.setDescription(dto.getDescription());
             appointment.setStatus(AppointmentStatus.PENDING); // default
 
-            appointmentService.saveAppointment(appointment);
+            appointmentService.saveAppointment(appointment, user.getEmail());
+
 
             return ResponseEntity.status(HttpStatus.CREATED).body("Appointment created successfully.");
         } catch (Exception e) {
@@ -144,6 +148,41 @@ public class AppointmentController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
+    }
+    @DeleteMapping("/cancel/{appointment_id}")
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
+        Optional<Appointment> optionalAppointment= appointmentService.getAppointmentById(appointment_id);
+        if(optionalAppointment.isPresent()) {
+            Appointment appointment = optionalAppointment.get();
+            appointmentService.deleteAppointmentById(appointment_id);
+            return ResponseEntity.ok("Appointment deleted successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found.");
+        }
+    }
+    @PreAuthorize("hasRole('DOCTOR')")
+    @PatchMapping("/confirm/{appointment_id}")
+    public ResponseEntity<String> confirmAppointment(@PathVariable Long appointment_id) {
+        Optional<Appointment> optionalAppointment= appointmentService.getAppointmentById(appointment_id);
+        if(optionalAppointment.isPresent()) {
+            Appointment appointment = optionalAppointment.get();
+            appointment.setStatus(AppointmentStatus.CONFIRMED);
+            emailService.sendAppointmentConfirmationbyDoctor(appointment.getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
+            appointmentService.updateAppointment(appointment);
+            return ResponseEntity.ok("Appointment confirmed successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found.");
+        }
+    }
+
+
+    @GetMapping("/doctor/{doctor_id}")
+    public List<AppointmentResponseDTO> getAllAppointments(
+            @PathVariable("doctor_id") Long doctorId,
+            @RequestParam String date
+    ) {
+        LocalDate parsedDate = LocalDate.parse(date.trim()); // remove any extra spaces/newlines
+        return appointmentService.getAppointmentsForDoctorOnDate(doctorId, parsedDate);
     }
 
 

@@ -4,13 +4,14 @@ import com.medibook.appointment.dto.AppointmentResponseDTO;
 import com.medibook.appointment.entities.Appointment;
 import com.medibook.appointment.entities.Doctor_Profile;
 import com.medibook.appointment.entities.User;
+import java.time.format.DateTimeFormatter;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-18T22:18:07+0300",
-    comments = "version: 1.5.0.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
+    date = "2025-09-04T15:38:40+0300",
+    comments = "version: 1.5.0.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class AppointmentMapperImpl implements AppointmentMapper {
@@ -26,8 +27,12 @@ public class AppointmentMapperImpl implements AppointmentMapper {
         appointmentResponseDTO.setDoctorName( appointmentDoctorUserUsername( appointment ) );
         appointmentResponseDTO.setPatientName( appointmentUserUsername( appointment ) );
         appointmentResponseDTO.setId( appointment.getId() );
-        appointmentResponseDTO.setDate( appointment.getDate() );
-        appointmentResponseDTO.setTime( appointment.getTime() );
+        if ( appointment.getDate() != null ) {
+            appointmentResponseDTO.setDate( DateTimeFormatter.ISO_LOCAL_DATE.format( appointment.getDate() ) );
+        }
+        if ( appointment.getTime() != null ) {
+            appointmentResponseDTO.setTime( DateTimeFormatter.ISO_LOCAL_TIME.format( appointment.getTime() ) );
+        }
         appointmentResponseDTO.setDescription( appointment.getDescription() );
         appointmentResponseDTO.setStatus( appointment.getStatus() );
 

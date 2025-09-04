@@ -1,6 +1,11 @@
 package com.medibook.appointment.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "Appointments")
@@ -11,10 +16,10 @@ public class Appointment {
     private Long id;
 
     @Column
-    private String date;
+    private LocalDate date;
 
     @Column
-    private String time;
+    private LocalTime time;
 
     @Column
     private String description;
@@ -25,27 +30,29 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id")
+    @JsonIgnore
     private Doctor_Profile doctor;
 
 
     public Appointment() {}
 
-    public Appointment(String date, String description, AppointmentStatus status, String time) {
+    public Appointment(LocalDate date, String description, AppointmentStatus status, LocalTime time) {
         this.date = date;
         this.description = description;
         this.status = status;
         this.time = time;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -73,11 +80,11 @@ public class Appointment {
         this.status = status;
     }
 
-    public String getTime() {
+    public LocalTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
