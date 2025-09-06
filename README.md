@@ -3,7 +3,28 @@
 A full-stack application for booking and managing medical appointments.  
 Built with **Spring Boot (backend)**, **React (frontend)**, and **PostgreSQL**.
 
+Built with the tools and technologies:
+
+`JSON` • `Markdown` • `Spring` • `npm` • `JavaScript` • `React`  
+`Docker` • `XML` • `PostgreSQL` • `Axios` • `styled-components` • `YAML`
+
 ---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Databse Setup](#databse_setup)
+- [Credentials](#credentials)
+
+---
+## Overview
+
+**Medical_Appointment_Service** is a comprehensive platform designed to streamline healthcare scheduling and management for developers building medical systems.  
+It integrates a secure backend with a dynamic, role-based frontend, supporting seamless communication between patients and healthcare providers.
+
 
 ## Features
 - User authentication (patients, doctors, admin)
@@ -22,7 +43,7 @@ Built with **Spring Boot (backend)**, **React (frontend)**, and **PostgreSQL**.
 
 ---
 
-## Installation & Setup
+## Installation 
 
 Clone the repository:
 ```bash
