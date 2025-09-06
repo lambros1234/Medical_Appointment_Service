@@ -1,72 +1,69 @@
-# MEDICAL_APPOINTMENT_SERVICE
+# Medical Appointment Service
+
+A full-stack application for booking and managing medical appointments.  
+Built with **Spring Boot (backend)**, **React (frontend)**, and **PostgreSQL**.
 
 ---
 
-![last commit](https://img.shields.io/badge/last%20commit-last%20thursday-blue)
-![java](https://img.shields.io/badge/java-ES.0%25-orange)
-![languages](https://img.shields.io/badge/languages-5-blue)
-
-Built with the tools and technologies:
-
-`JSON` • `Markdown` • `Spring` • `npm` • `JavaScript` • `React`  
-`Docker` • `XML` • `PostgreSQL` • `Axios` • `styled-components` • `YAML`
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Testing](#testing)
+## Features
+- User authentication (patients, doctors, admin)
+- Book, confirm, and cancel appointments
+- Role-based actions:
+  - Patients can book and cancel appointments
+  - Doctors can confirm appointments
+  - Admins can manage users
+- Email notifications (via Mailhog for testing)
 
 ---
 
-## Overview
-
-**Medical_Appointment_Service** is a comprehensive platform designed to streamline healthcare scheduling and management for developers building medical systems.  
-It integrates a secure backend with a dynamic, role-based frontend, supporting seamless communication between patients and healthcare providers.
-
-Core features include:
-
-- 🛠 **API-Driven Management:** Robust endpoints for users, doctors, specialties, allergies, and appointments, enabling efficient data handling.
-- 🎨 **Responsive UI Components:** Intuitive React components for calendars, alerts, profiles, and booking interfaces, enhancing user experience.
-- 🔐 **Secure Authentication:** JWT-based security with role-based access control, ensuring data privacy and secure operations.
-- 📦 **Containerized Architecture:** Docker configurations for easy deployment, testing, and scaling across environments.
+## Requirements
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
 ---
 
-## Getting Started
+## Installation & Setup
 
-### Prerequisites
+Clone the repository:
+```bash
+git clone https://github.com/chalatsis2004/Medical_Appointment_Service
+cd Medical_Appointment_Service
+```
+Build and start the service:
+```
+docker-compose up --build
+```
+This will start:
+- Backend: http://localhost:8080
+- Frontend: http://localhost:3000
+- MailHog: (fake SMTP for dev): http://localhost:8025
+- PostgreSQL: http://localhost:5432 (if enabled)
 
-This project requires the following dependencies:
+## Databse Setup
+This project requires a PostgreSQL database.
+- If you already have Postgres running, update the backend’s application.properties with your DB connection.
+- If not, you can use the provided Docker Compose service.
 
-- **Programming Language:** Java
-- **Package Manager:** npm, Maven
-- **Container Runtime:** Docker
+In docker-compose.yml, the db service is commented out by default.
+To use it:
+- Uncomment the db service section.
+- Update the backend service environment variables if needed (or keep defaults).
 
----
-
-### Installation
-
-Build **Medical_Appointment_Service** from the source and install dependencies:
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/chalatsis2004/Medical_Appointment_Service
-
-2. **Navigate to the project directory**
-
-    ```bash
-    cd Medical_Appointment_Service
-3. **Install the dependencies**
-
-   Using docker:
-   ```bash
-   docker build -t lampros1234/Medical_Appointment_Service .
-
-   
+Example db service:
+```
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_DB: medical_appointments
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+```
+Then restart with: 
+```
+docker-compose up --build
+```
