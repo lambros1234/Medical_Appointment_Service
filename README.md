@@ -16,7 +16,7 @@ Built with the tools and technologies:
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Databse Setup](#databse_setup)
+- [Databse Setup](#database)
 - [Credentials](#credentials)
 
 ---
@@ -60,7 +60,7 @@ This will start:
 - MailHog: (fake SMTP for dev): http://localhost:8025
 - PostgreSQL: http://localhost:5432 (if enabled)
 
-## Databse Setup
+## Databse 
 This project requires a PostgreSQL database.
 - If you already have Postgres running, update the backend’s application.properties with your DB connection.
 - If not, you can use the provided Docker Compose service.
