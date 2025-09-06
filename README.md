@@ -1,7 +1,5 @@
 # MEDICAL_APPOINTMENT_SERVICE
 
-**Seamless Care, Effortless Scheduling, Better Outcomes**
-
 ---
 
 ![last commit](https://img.shields.io/badge/last%20commit-last%20thursday-blue)
@@ -60,3 +58,9 @@ Build **Medical_Appointment_Service** from the source and install dependencies:
 
    ```bash
    git clone https://github.com/chalatsis2004/Medical_Appointment_Service
+
+
+2. **Navigate to the project directory**
+
+    ```bash
+    cd Medical_Appointment_Service
