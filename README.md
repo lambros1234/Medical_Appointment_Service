@@ -67,3 +67,14 @@ Then restart with:
 ```
 docker-compose up --build
 ```
+
+## Credentials
+When the application starts, you can sign up via the frontend.
+Default roles available:
+- ROLE_ADMIN
+- ROLE_PATIENT
+- ROLE_DOCTOR
+
+Default user (for testing):
+- Username: admin1
+- Password: admin123
