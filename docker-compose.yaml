@@ -5,9 +5,9 @@ services:
     ports:
       - "8000:8000"
     environment: # Change Variables with your database and credentials
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://{{ db_host }}:5432/medical_appointments
-      - SPRING_DATASOURCE_USERNAME={{ db_user }}
-      - SPRING_DATASOURCE_PASSWORD={{ db_password }}
+      # SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/medical_appointments
+      # SPRING_DATASOURCE_USERNAME: postgres
+      # SPRING_DATASOURCE_PASSWORD: postgres
       - SPRING_MAIL_HOST= mailhog
       - SPRING_MAIL_PORT= 1025
     depends_on:
@@ -20,6 +20,19 @@ services:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://{{ backend_host }}:8000
+
+  # db:
+  #   image: postgres:15
+  #   container_name: db
+  #   environment:
+  #     POSTGRES_DB: medical_appointments
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+      
 
   mailhog:
     image: mailhog/mailhog
