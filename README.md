@@ -16,7 +16,7 @@ Built with the tools and technologies:
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Databse Setup](#database)
+- [Databse](#database)
 - [Credentials](#credentials)
 
 ---
