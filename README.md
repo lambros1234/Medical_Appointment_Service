@@ -61,6 +61,7 @@ This will start:
 - PostgreSQL: http://localhost:5432 (if enabled)
 
 ## Databse 
+
 This project requires a PostgreSQL database.
 - If you already have Postgres running, update the backend’s application.properties with your DB connection.
 - If not, you can use the provided Docker Compose service.
