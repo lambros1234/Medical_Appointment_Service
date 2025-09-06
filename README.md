@@ -59,8 +59,14 @@ Build **Medical_Appointment_Service** from the source and install dependencies:
    ```bash
    git clone https://github.com/chalatsis2004/Medical_Appointment_Service
 
-
 2. **Navigate to the project directory**
 
     ```bash
     cd Medical_Appointment_Service
+3. **Install the dependencies**
+
+   Using docker:
+   ```bash
+   docker build -t lampros1234/Medical_Appointment_Service .
+
+   
