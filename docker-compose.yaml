@@ -4,10 +4,10 @@ services:
     container_name: medical_appointment_service_app
     ports:
       - "8000:8000"
-    environment: # Change Variables with your database and credentials
-      # SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/medical_appointments
-      # SPRING_DATASOURCE_USERNAME: postgres
-      # SPRING_DATASOURCE_PASSWORD: postgres
+    environment: 
+      SPRING_DATASOURCE_URL: jdbc:postgresql://{{ db_host }}:5432/{{ db_name }}
+      SPRING_DATASOURCE_USERNAME: {{ db_user }}
+      SPRING_DATASOURCE_PASSWORD: {{ db_password }}
       - SPRING_MAIL_HOST= mailhog
       - SPRING_MAIL_PORT= 1025
     depends_on:
