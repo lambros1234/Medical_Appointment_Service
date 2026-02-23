@@ -76,38 +76,27 @@ public class AppointmentController {
 
     @PostMapping
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<String> createAppointment(@RequestBody AppointmentRequestDTO dto,
-                                                    Authentication authentication) {
+    public ResponseEntity<?> createAppointment(@RequestBody AppointmentRequestDTO dto,
+                                               Authentication authentication) {
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            User user = userService.findUserByEmail(userDetails.getEmail());
 
-            Optional<Doctor_Profile> optionalDoctor = doctorProfileService.findDoctorProfileById(dto.getDoctorId());
-            if (optionalDoctor.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Doctor not found.");
-            }
+            // This must call the service method
+            Appointment appointment = appointmentService.bookAppointment(dto, userDetails.getEmail());
 
-            Appointment appointment = new Appointment();
-            appointment.setUser(user);
-            appointment.setDoctor(optionalDoctor.get());
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(appointmentService.getAppointmentResponseDTO(appointment));
 
-            appointment.setDate(dto.getDate());
-            appointment.setTime(dto.getTime());
-
-
-            appointment.setDescription(dto.getDescription());
-            appointment.setStatus(AppointmentStatus.PENDING); // default
-
-            appointmentService.saveAppointment(appointment, user.getEmail());
-
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("Appointment created successfully.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to create appointment: " + e.getMessage());
+                    .body(e.getMessage());
         }
     }
-
 
     @GetMapping("/{appointment_id}")
     public ResponseEntity<AppointmentResponseDTO> getAppointment(@PathVariable Long appointment_id) {

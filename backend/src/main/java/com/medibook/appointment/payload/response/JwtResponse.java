@@ -10,7 +10,7 @@ public class JwtResponse {
     private String email;
     private List<String> roles;
     private Integer patientID;
-    private Integer doctorID;
+    private Long doctorID;
 
     public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
         this.token = accessToken;
@@ -20,7 +20,7 @@ public class JwtResponse {
         this.roles = roles;
     }
 
-    public JwtResponse(String token, Long id, String username, String email, List<String> roles, Integer patientID, Integer doctorID) {
+    public JwtResponse(String token, Long id, String username, String email, List<String> roles, Integer patientID, Long doctorID) {
         this.token = token;
         this.id = id;
         this.type = type;
@@ -59,11 +59,11 @@ public class JwtResponse {
         this.patientID = patientID;
     }
 
-    public Integer getDoctorID() {
+    public Long getDoctorID() {
         return doctorID;
     }
 
-    public void setDoctorID(Integer doctorID) {
+    public void setDoctorID(Long doctorID) {
         this.doctorID = doctorID;
     }
 

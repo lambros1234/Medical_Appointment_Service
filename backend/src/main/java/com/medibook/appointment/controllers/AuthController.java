@@ -105,7 +105,7 @@ public class AuthController {
 
                 User User = userService.findUserByUsername(userDetails.getUsername()).get();
                 Integer patientProfileId = User.getPatientProfile() != null ? User.getPatientProfile().getId() : null;
-                Integer doctorProfileId = User.getDoctorProfile() != null ? User.getDoctorProfile().getId() : null;
+                Long doctorProfileId = User.getDoctorProfile() != null ? User.getDoctorProfile().getId() : null;
 
                 return  ResponseEntity.ok(new JwtResponse(jwt,
                         userDetails.getId(),

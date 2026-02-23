@@ -11,7 +11,7 @@ public class Doctor_Profile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -34,7 +34,7 @@ public class Doctor_Profile {
 
     public Doctor_Profile() {}
 
-    public Doctor_Profile(List<Appointment> appointments, List<Availability> availabilities, int id, List<Specialty> specialties, User user) {
+    public Doctor_Profile(List<Appointment> appointments, List<Availability> availabilities, Long id, List<Specialty> specialties, User user) {
         this.appointments = appointments;
         this.availabilities = availabilities;
         this.id = id;
@@ -58,11 +58,11 @@ public class Doctor_Profile {
         this.availabilities = availabilities;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -33,11 +33,23 @@ public class AppointmentService {
         this.emailService = emailService;
     }
 
-    public Appointment createAppointment(AppointmentRequestDTO dto, String userEmail) {
+    @Transactional
+    public Appointment bookAppointment(AppointmentRequestDTO dto, String userEmail) {
+
         User user = userService.findUserByEmail(userEmail);
 
         Doctor_Profile doctor = doctorProfileService.findDoctorProfileById(dto.getDoctorId())
                 .orElseThrow(() -> new IllegalArgumentException("Doctor not found"));
+
+        boolean exists = appointmentRepository.existsByDoctorAndDateAndTime(
+                doctor,
+                dto.getDate(),
+                dto.getTime()
+        );
+
+        if (exists) {
+            throw new IllegalStateException("This slot is already booked");
+        }
 
         Appointment appointment = new Appointment();
         appointment.setUser(user);
@@ -47,7 +59,24 @@ public class AppointmentService {
         appointment.setDescription(dto.getDescription());
         appointment.setStatus(AppointmentStatus.PENDING);
 
-        return appointmentRepository.save(appointment);
+        System.out.println("Appointment Saving");
+        appointmentRepository.save(appointment);
+        System.out.println("Appointment Saved");
+
+        emailService.sendAppointmentConfirmationEmailPatient(
+                userEmail,
+                appointment.getDate().toString(),
+                appointment.getTime().toString(),
+                doctor.getUser().getLastName()
+        );
+
+        emailService.sendAppointmentConfirmationEmailDoctor(
+                doctor.getUser().getEmail(),
+                appointment.getDate().toString(),
+                appointment.getTime().toString()
+        );
+
+        return appointment;
     }
 
     public void updateAppointment(final Appointment appointment) {
@@ -83,14 +112,6 @@ public class AppointmentService {
         this.appointmentRepository.deleteById(appointment_id);
         return true;
     }
-
-    @Transactional
-    public void saveAppointment(Appointment appointment, String userEmail) {
-        this.appointmentRepository.save(appointment);
-        emailService.sendAppointmentConfirmationEmailPatient(userEmail, appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
-        emailService.sendAppointmentConfirmationEmailDoctor(appointment.getDoctor().getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString());
-    }
-
 
     public AppointmentResponseDTO getAppointmentResponseDTO(Appointment appointment) {
         return appointmentMapper.toDTO(appointment);

@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 
@@ -21,4 +22,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     @Query("SELECT a FROM Appointment a WHERE a.doctor.id = :doctorId AND a.date = :date")
     List<Appointment> findAppointmentsForDoctorOnDate(@Param("doctorId") Long doctorId,
                                                       @Param("date") LocalDate date);
+    List<Appointment> findByDoctorIdAndDate(Long doctorId, LocalDate date);
+    boolean existsByDoctorAndDateAndTime(Doctor_Profile doctor, LocalDate date, LocalTime time);
+
 }

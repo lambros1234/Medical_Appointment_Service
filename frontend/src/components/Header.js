@@ -22,13 +22,13 @@ export default function Header() {
   const navByRole = {
     ROLE_PATIENT: [
       { name: "Home", href:"/"},
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/dashboard" }, // NOT FINISHED
       { name: "Doctors", href: "/doctors" },
       { name: "My Appointments", href:"/appointments"}
     ],
     ROLE_DOCTOR: [
       {name: "Home", href:"/"},
-      { name: "Dashboard", href: "/dashboard" },
+      { name: "Dashboard", href: "/dashboard" }, // NOT FINISHED
       { name: "Manage Appointments", href: "/manage-appointments" },
       { name: "Availability", href:"/availability"},
     ],

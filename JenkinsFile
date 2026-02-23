@@ -1,0 +1,27 @@
+// This Jenkinsfile orchestrates the execution of three separate Jenkins jobs:
+// 1. 'backend-job': Responsible for building and testing the backend services.
+// 2. 'frontend-job': Responsible for building and testing the frontend application.
+// 3. 'ansible': Responsible for deploying the application using Ansible.
+pipeline {
+    agent any
+
+    stages {
+        stage('Run Backend Pipeline') {
+            steps {
+                build job: 'backend-job'
+            }
+        }
+
+        stage('Run Frontend Pipeline') {
+            steps {
+                build job: 'frontend-job'
+            }
+        }
+
+        stage('Run Ansible Pipeline') {
+            steps {
+                build job: 'ansible'   // this job handles build + deploy
+            }
+        }
+    }
+}

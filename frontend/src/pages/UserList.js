@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import { fetchUsers, deleteUser, approveUser, updateUser } from "../api/users";
 import MainLayout from "../layouts/MainLayout";
 import LoadingSpinner from "../components/Loading";
+import SuccessAlert from "../components/SuccessAlert"
+
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
 
   useEffect(() => {
@@ -41,13 +46,23 @@ const UserList = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
+
     await deleteUser(id);
     loadUsers();
+
+    setAlertTitle("User Deleted");
+    setAlertMessage("The user has been deleted successfully.");
+    setAlertOpen(true);
   };
+
 
   const handleApprove = async (id) => {
     await approveUser(id);
     loadUsers();
+
+    setAlertTitle("User Approved");
+    setAlertMessage("The user has been approved successfully.");
+    setAlertOpen(true);
   };
 
   const handleEdit = (user) => {
@@ -59,13 +74,25 @@ const UserList = () => {
     await updateUser(editingUser, formData);
     setEditingUser(null);
     loadUsers();
+
+    setAlertTitle("User Updated");
+    setAlertMessage("User details have been updated successfully.");
+    setAlertOpen(true);
   };
+
 
   if (loading) return <LoadingSpinner />;
 
 
   return (
-    <MainLayout>
+      <MainLayout>
+        <SuccessAlert
+          open={alertOpen}
+          title={alertTitle}
+          message={alertMessage}
+          onClose={() => setAlertOpen(false)}
+      />
+
         <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">User Management</h1>
 

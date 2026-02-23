@@ -17,5 +17,6 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Inte
     boolean existsByDoctorAndDayOfWeekAndStartTimeAndEndTime(
             Doctor_Profile doctor, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime
     );
+    List<Availability> findByDoctorIdAndDayOfWeek(Long doctorId, DayOfWeek dayOfWeek);
 
 }

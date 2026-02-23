@@ -12,7 +12,7 @@ public class Availability {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     // doctor who owns this availability
     @ManyToOne
@@ -21,7 +21,7 @@ public class Availability {
     private Doctor_Profile doctor;
 
 
-    @Enumerated(EnumType.STRING) // ✅ store MONDAY, TUESDAY, etc. as strings in DB
+    @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
     private LocalTime startTime;
@@ -29,15 +29,16 @@ public class Availability {
 
     public Availability() {}
 
-    public Availability(Doctor_Profile doctor, DayOfWeek dayOfWeek,
+    public Availability(Long id,Doctor_Profile doctor, DayOfWeek dayOfWeek,
                         LocalTime startTime, LocalTime endTime) {
+        this.id = id;
         this.doctor = doctor;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

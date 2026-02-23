@@ -12,6 +12,8 @@ export const Login = async (username, password) => {
     localStorage.setItem("patientID", res.data.patientID);
     localStorage.setItem("doctorID", res.data.doctorID);
 
+    console.log("Login response:", res.data);
+
     return res.data;
   } catch (err) {
     console.error("Full error response:", err.response?.data);

@@ -1,206 +1,143 @@
-import React, { useState } from "react";
-import ProfilePic from "../assets/Profile.jpg";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  MenuItem,
+  Select,
+  Stack,
+} from "@mui/material";
+
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
-import Button from "./BookButton";
-import { fetchAvailability } from "../api/availability";
-import { fetchDoctorAppointments, createAppointment } from "../api/appointments";
+
+import AlertDialog from "./SuccessAlert";
+import { fetchSlots } from "../api/availability";
+import { createAppointment } from "../api/appointments";
 
 export default function DoctorCard({ doctor }) {
-  const [open, setOpen] = useState(false);
-  const [availability, setAvailability] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [availableSlots, setAvailableSlots] = useState([]);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [bookedAppointments, setBookedAppointments] = useState([]);
+  const [date, setDate] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState("");
 
-  const dayMap = {
-    SUNDAY: 0,
-    MONDAY: 1,
-    TUESDAY: 2,
-    WEDNESDAY: 3,
-    THURSDAY: 4,
-    FRIDAY: 5,
-    SATURDAY: 6,
-  };
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
-  const loadAvailability = async () => {
-    try {
-      const res = await fetchAvailability(doctor.id);
-      setAvailability(res || []);
-    } catch (err) {
-      console.error("Failed to fetch availability", err);
-      setAvailability([]);
-    }
-  };
-  const handleBookClick = () => {
-    setOpen(true);
-    loadAvailability();
-  };
+  const handleDateChange = async (newDate) => {
+    setDate(newDate);
+    setSelectedSlot("");
 
-  const getDayAvailability = (dayIndex) => {
-    return availability.find(
-      (a) => dayMap[a.dayOfWeek.toUpperCase()] === dayIndex
-    );
-  };
-
-  const handleDateChange = async (date) => {
-    setSelectedDate(date);
-    setSelectedTime(null);
-
-    if (!date) {
-      setAvailableSlots([]);
-      setBookedAppointments([]);
-      return;
-    }
-
-    const dayAvailability = getDayAvailability(date.day());
-    if (!dayAvailability) {
-      setAvailableSlots([]);
-      setBookedAppointments([]);
-      return;
-    }
-
-    // Load booked appointments first
-    const appointments = await fetchDoctorAppointments(doctor.id, date);
-    setBookedAppointments(appointments || []);
-
-    // Generate all possible slots
-    const start = dayjs(dayAvailability.startTime, "HH:mm");
-    const end = dayjs(dayAvailability.endTime, "HH:mm");
-    const slots = [];
-    let current = start.clone();
-    while (current.isBefore(end)) {
-      slots.push(current.format("HH:mm"));
-      current = current.add(30, "minute");
-    }
-
-    // Filter out booked slots
-    const bookedTimes = (appointments || []).map((appt) => appt.time);
-    const filteredSlots = slots.filter((slot) => !bookedTimes.includes(slot));
-
-    setAvailableSlots(filteredSlots);
-  };
-
-  const handleConfirm = async () => {
-    if (!selectedDate || !selectedTime) {
-      alert("Please select both date and time.");
-      return;
-    }
+    if (!newDate) return;
 
     try {
-      const appointmentRequest = {
-        doctorId: doctor.id,
-        date: selectedDate.format("YYYY-MM-DD"),
-        time: selectedTime,
-        description: "General check-up",
-      };
-
-      await createAppointment(appointmentRequest);
-
-      alert(
-        `Appointment booked successfully on ${appointmentRequest.date} at ${appointmentRequest.time}`
-      );
-
-      // Reset
-      setOpen(false);
-      setSelectedDate(null);
-      setSelectedTime(null);
-      setAvailableSlots([]);
-      setBookedAppointments([]);
+      const formatted = dayjs(newDate).format("YYYY-MM-DD");
+      const data = await fetchSlots(doctor.id, formatted);
+      setSlots(data);
     } catch (err) {
-      console.error("Failed to create appointment", err);
-      alert("Failed to create appointment. Please try again.");
+      console.error("Failed to fetch slots", err);
+    }
+  };
+
+  const handleBook = () => {
+    if (!date || !selectedSlot) {
+      setAlertTitle("Missing info");
+      setAlertMessage("Please select date and time");
+      setAlertOpen(true);
+      return;
+    }
+    const appointment = {
+      doctorId: doctor.id,
+      date: dayjs(date).format("YYYY-MM-DD"),
+      time: selectedSlot,
+    };
+
+    createAppointment(appointment)
+      .then(() => {
+        setAlertTitle("Appointment booked");
+        setAlertMessage(
+          `Booked with ${doctor.username} on ${dayjs(date).format(
+            "DD MMM YYYY"
+          )} at ${selectedSlot}`
+        );
+        setAlertOpen(true);
+      })
+      .catch((err) => {
+        setAlertTitle("Error");
+        setAlertMessage("Failed to book appointment");
+        setAlertOpen(true);
+      });
+  };
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+    if (alertTitle === "Appointment booked") {
+      window.location.reload();
     }
   };
 
   return (
-    <div className="border rounded-lg p-4 shadow hover:shadow-lg transition px-12">
-      <img
-        src={ProfilePic}
-        alt={doctor.username}
-        className="w-24 h-24 rounded-full object-cover mx-auto"
+    <>
+      <AlertDialog
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={handleAlertClose}
       />
 
-      <h2 className="text-lg font-semibold text-center mt-2">
-        {doctor.username}
-      </h2>
+      <Card sx={{ borderRadius: 3, p: 2 }}>
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold">
+            Dr. {doctor.username}
+          </Typography>
 
-      <p className="text-gray-600 text-center text-sm">
-        {doctor.specialties?.length
-          ? doctor.specialties.map((s) => s.name).join(", ")
-          : "No specialties"}
-      </p>
+          <Typography color="text.secondary" mb={2}>
+            📍 {doctor.location}
+          </Typography>
 
-      <p className="text-gray-500 text-center text-sm">
-        {doctor.location || "Unknown location"}
-      </p>
-
-      <div className="flex justify-center mt-4">
-        <Button
-          onClick={handleBookClick}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Book Appointment
-        </Button>
-      </div>
-
-      {open && (
-        <div className="mt-4 border p-4 rounded bg-gray-50">
+          {/* DATE PICKER */}
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
-              label="Select appointment date"
-              value={selectedDate}
+              label="Select Date"
+              value={date}
               onChange={handleDateChange}
-              shouldDisableDate={(date) => {
-                if (!availability || availability.length === 0) return false;
-                const allowedDays = availability.map(
-                  (a) => dayMap[a.dayOfWeek.toUpperCase()]
-                );
-                return !allowedDays.includes(date.day());
-              }}
+              disablePast
+              sx={{ mb: 2, width: "100%" }}
             />
           </LocalizationProvider>
 
-          {availableSlots.length > 0 && (
-            <div className="mt-3">
-              <p className="mb-2 font-semibold">Available times:</p>
-              <div className="flex flex-wrap gap-2">
-                {availableSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    onClick={() => setSelectedTime(slot)}
-                    className={`px-3 py-1 rounded border ${
-                      selectedTime === slot
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-black"
-                    }`}
-                  >
-                    {slot}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* SLOT SELECT */}
+          {slots.length > 0 ? (
+            <Select
+              fullWidth
+              value={selectedSlot}
+              onChange={(e) => setSelectedSlot(e.target.value)}
+              sx={{ mb: 2 }}
+            >
+              {slots.map((slot, i) => (
+                <MenuItem key={i} value={slot.startTime}>
+                  {slot.startTime} - {slot.endTime}
+                </MenuItem>
+              ))}
+            </Select>
+          ) : date ? (
+            <Typography color="text.secondary" mb={2}>
+              No slots available
+            </Typography>
+          ) : null}
 
-          <div className="mt-4 flex gap-2">
-            <button
-              onClick={handleConfirm}
-              className="bg-green-500 text-white px-5 py-2 rounded"
-            >
-              Confirm
-            </button>
-            <button
-              onClick={() => setOpen(false)}
-              className="bg-red-500 text-white px-4 py-2 rounded"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+          <Button
+            variant="contained"
+            fullWidth
+            disabled={!selectedSlot}
+            onClick={handleBook}
+          >
+            Book Appointment
+          </Button>
+        </CardContent>
+      </Card>
+    </>
   );
 }

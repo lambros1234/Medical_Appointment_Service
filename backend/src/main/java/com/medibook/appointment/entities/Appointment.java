@@ -8,7 +8,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "Appointments")
+@Table(
+        name = "Appointments",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"doctor_id", "date", "time"})
+        }
+)
 public class Appointment {
 
     @Id

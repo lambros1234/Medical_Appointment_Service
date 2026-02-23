@@ -1,46 +1,112 @@
 import { useEffect, useState } from "react";
-import { getAppointments } from "../api/appointments"; 
-import MainLayout from "../layouts/MainLayout";
+import { getAppointments, cancelAppointment } from "../api/appointments";
+import LoadingSpinner from "../components/Loading";
 import AppointmentCard from "../components/AppointmentCard";
+import MainLayout from "../layouts/MainLayout";
+import AlertDialog from "../components/SuccessAlert";
+import {
+  Grid,
+  Typography,
+  Container,
+  Box,
+  Divider,
+} from "@mui/material";
 
 export default function AppointmentsList() {
   const [appointments, setAppointments] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
+  
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchAppointments() {
       try {
         const data = await getAppointments();
-        console.log(data);
-        setAppointments(data);
-      } catch (err) {
-        console.error(err.message);
+        // Normalize appointments to ensure each has an 'id' property
+        const normalized = data.map(a => ({
+          ...a,
+          id: a.id || a._id // fallback if backend uses _id
+        }));
+        setAppointments(normalized);
+        setFilteredAppointments(normalized);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
 
-    fetchData();
+    fetchAppointments();
   }, []);
+
+  const handleCancel = async (appointmentId) => {
+    try {
+      await cancelAppointment(appointmentId);
+      setAppointments(appointments.filter(a => a.id !== appointmentId));
+      setFilteredAppointments(filteredAppointments.filter(a => a.id !== appointmentId));
+      setAlertTitle("Success");
+      setAlertMessage("Appointment cancelled successfully");
+      setAlertOpen(true);
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      setAlertTitle("Error");
+      setAlertMessage("Failed to cancel appointment");
+      setAlertOpen(true);
+    }
+  };
+
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <MainLayout>
-            <h1 className="text-3xl font-bold mb-6">Appointments</h1>
-      
-            {appointments.length === 0 ? (
-              <div className="flex items-center justify-center h-screen">
-                <p className="text-gray-600">No Appointments.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {appointments.map((appointment) => (
-                  <AppointmentCard 
-                    key={appointment.id} 
-                    appointment={appointment} 
-                    onEdit={(id) => console.log("Edit", id)} 
-                    onDelete={(id) => console.log("Delete", id)} 
-                  />               
-                ))}
-              </div>
-            )}
+      <AlertDialog
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
+      <Box sx={{ bgcolor: "#fafafa", py: 10 }}>
+        <Container maxWidth="lg">
+          
+          {/* Header */}
+          <Typography variant="h4" fontWeight={700} gutterBottom>
+            My Appointments
+          </Typography>
 
+          <Typography color="text.secondary" mb={3}>
+            Review and manage your scheduled appointments.
+          </Typography>
+
+          <Divider sx={{ mb: 4 }} />
+
+          {/* Empty state */}
+          {filteredAppointments.length === 0 ? (
+            <Box textAlign="center" mt={6}>
+              <Typography variant="h6">
+                No appointments found
+              </Typography>
+              <Typography color="text.secondary">
+                Try adjusting your search.
+              </Typography>
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {filteredAppointments.map((appointment) => (
+                <Grid item xs={12} sm={6} lg={4} key={appointment.id}>
+                  <AppointmentCard 
+                    appointment={appointment}
+                    onCancel={handleCancel}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Container>
+      </Box>
     </MainLayout>
   );
 }

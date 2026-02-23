@@ -3,23 +3,34 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
+import AlertDialog from "../components/SuccessAlert";
 import {
   MenuItem,
   Select,
   Button,
   Typography,
   Box,
-  List,
-  ListItem,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+  Divider,
+  Container,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import MainLayout from "../layouts/MainLayout";
-import { fetchAvailability, addAvailability } from "../api/availability";
+import {
+  fetchMyAvailability,
+  addAvailability,
+  deleteAvailability,
+} from "../api/availability";
 
 export default function DoctorAvailabilityForm() {
   const [dayOfWeek, setDayOfWeek] = useState("MONDAY");
   const [startTime, setStartTime] = useState(dayjs("09:00", "HH:mm"));
   const [endTime, setEndTime] = useState(dayjs("12:00", "HH:mm"));
   const [availabilities, setAvailabilities] = useState([]);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const days = [
     "MONDAY",
@@ -31,11 +42,11 @@ export default function DoctorAvailabilityForm() {
     "SUNDAY",
   ];
 
-  // Load availabilities on mount
   useEffect(() => {
     const loadAvailability = async () => {
       try {
-        const data = await fetchAvailability();
+        const data = await fetchMyAvailability();
+        console.log("Loaded availability:", data);
         setAvailabilities(data);
       } catch (err) {
         console.error("Failed to fetch availability", err);
@@ -46,6 +57,11 @@ export default function DoctorAvailabilityForm() {
   }, []);
 
   const handleSubmit = async () => {
+    if (endTime.isBefore(startTime)) {
+      alert("End time must be after start time.");
+      return;
+    }
+
     const newAvailability = {
       dayOfWeek,
       startTime: startTime.format("HH:mm"),
@@ -54,65 +70,132 @@ export default function DoctorAvailabilityForm() {
 
     try {
       const saved = await addAvailability(newAvailability);
+      console.log("Saved availability:", saved);
       setAvailabilities((prev) => [...prev, saved]);
+      setAlertOpen(true);
     } catch (err) {
       console.error("Failed to save availability", err);
     }
   };
 
+  const handleDelete = async (id) => {
+    console.log("Deleting id:", id);
+
+    try {
+      await deleteAvailability(id);
+      setAvailabilities((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.error("Failed to delete availability", err);
+    }
+  };
+
   return (
     <MainLayout>
+      <AlertDialog
+        open={alertOpen}
+        title="Availability Saved"
+        message="Your availability has been added successfully."
+        onClose={() => setAlertOpen(false)}
+      />
+
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Box sx={{ maxWidth: 400, margin: "auto", p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Add Availability
-          </Typography>
+        <Box sx={{ bgcolor: "#fafafa", py: 10 }}>
+          <Container maxWidth="md">
+            <Typography variant="h4" fontWeight={700} gutterBottom>
+              Manage Availability
+            </Typography>
 
-          {/* Day of Week Selector */}
-        <Select
-            fullWidth
-            value={dayOfWeek}
-            onChange={(e) => setDayOfWeek(e.target.value)}
-            sx={{ mb: 2, height: 40, mt: 6 }} // adjust height here
-            >
-            {days.map((day) => (
-                <MenuItem key={day} value={day}>
-                {day}
-                </MenuItem>
-            ))}
-        </Select>
+            <Card sx={{ mb: 5 }}>
+              <CardContent>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Select
+                      fullWidth
+                      value={dayOfWeek}
+                      onChange={(e) => setDayOfWeek(e.target.value)}
+                    >
+                      {days.map((day) => (
+                        <MenuItem key={day} value={day}>
+                          {day}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
 
+                  <Grid item xs={12} sm={6}>
+                    <TimePicker
+                      label="Start Time"
+                      value={startTime}
+                      onChange={(newValue) => setStartTime(newValue)}
+                      sx={{ width: "100%" }}
+                    />
+                  </Grid>
 
-          {/* Start Time */}
-          <TimePicker
-            label="Start Time"
-            value={startTime}
-            onChange={(newValue) => setStartTime(newValue)}
-            sx={{ mb: 2, width: "100%" }}
-          />
+                  <Grid item xs={12} sm={6}>
+                    <TimePicker
+                      label="End Time"
+                      value={endTime}
+                      onChange={(newValue) => setEndTime(newValue)}
+                      sx={{ width: "100%" }}
+                    />
+                  </Grid>
 
-          {/* End Time */}
-          <TimePicker
-            label="End Time"
-            value={endTime}
-            onChange={(newValue) => setEndTime(newValue)}
-            sx={{ mb: 2, width: "100%" }}
-          />
+                  <Grid item xs={12}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      size="large"
+                      onClick={handleSubmit}
+                    >
+                      Save Availability
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
 
-          <Button variant="contained" fullWidth onClick={handleSubmit}>
-            Save Availability
-          </Button>
+            <Divider sx={{ mb: 4 }} />
 
-          <Typography variant="h6" sx={{ mt: 3 }}>
-            Current Availability
-          </Typography>
-          <List>
-            {availabilities.map((a, idx) => (
-              <ListItem key={idx}>
-                {a.dayOfWeek}: {a.startTime} - {a.endTime}
-              </ListItem>
-            ))}
-          </List>
+            <Typography variant="h6" gutterBottom>
+              Current Availability
+            </Typography>
+
+            {availabilities.length === 0 ? (
+              <Typography>No availability set yet.</Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {availabilities.map((a) => (
+                  <Grid item xs={12} sm={6} key={a.id}>
+                    <Card>
+                      <CardContent
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box>
+                          <Typography fontWeight={600}>
+                            {a.dayOfWeek}
+                          </Typography>
+                          <Typography color="text.secondary">
+                            {a.startTime} - {a.endTime}
+                          </Typography>
+                        </Box>
+
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDelete(a.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Container>
         </Box>
       </LocalizationProvider>
     </MainLayout>

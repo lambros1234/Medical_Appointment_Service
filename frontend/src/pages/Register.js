@@ -61,7 +61,7 @@ export default function RegisterPage() {
       const payload = { ...formData, role: [role], specialty: specialtyToSend, }; // Add role
       console.log(payload);
       const response = await registerUser(payload);
-      setSuccessMessage("User registered successfully!");
+      setSuccessMessage("Success");
     } catch (err) {
       setErrorMessage("Failed to register");
     }
@@ -97,13 +97,16 @@ export default function RegisterPage() {
  
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
         {successMessage && (
-      <SuccessAlert
-        message={successMessage}
-        onClose={() => {
-          setSuccessMessage(""); // hide the alert
-          navigate("/");         // navigate after closing
-        }}
-      />
+        <SuccessAlert
+          open={!!successMessage}
+          title="Register Successfully!"
+          message="You have registered successfully. Waiting for admin approval. You will receive an email once your account is approved."
+          onClose={() => {
+            setSuccessMessage("");
+            navigate("/login"); // redirect to login
+          }}
+        />
+
         )}
         {errorMessage && (
           <FailAlert message={errorMessage} onClose={() => setErrorMessage("")} />
