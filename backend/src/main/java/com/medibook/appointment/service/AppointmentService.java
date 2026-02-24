@@ -113,6 +113,17 @@ public class AppointmentService {
         return true;
     }
 
+    @Transactional
+    public void cancelAppointment(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+        emailService.sendAppointmentCancelationEmailDoctor(appointment.getDoctor().getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString());
+        emailService.sendAppointmentCancelationEmailPatient(appointment.getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
+    }
+
     public AppointmentResponseDTO getAppointmentResponseDTO(Appointment appointment) {
         return appointmentMapper.toDTO(appointment);
     }
