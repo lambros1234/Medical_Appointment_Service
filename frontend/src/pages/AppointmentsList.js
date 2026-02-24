@@ -20,12 +20,11 @@ export default function AppointmentsList() {
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   
-
+  // Fetch appointments on component mount
   useEffect(() => {
     async function fetchAppointments() {
       try {
         const data = await getAppointments();
-        // Normalize appointments to ensure each has an 'id' property
         const normalized = data.map(a => ({
           ...a,
           id: a.id || a._id // fallback if backend uses _id
@@ -42,6 +41,7 @@ export default function AppointmentsList() {
     fetchAppointments();
   }, []);
 
+  // Handle appointment cancellation
   const handleCancel = async (appointmentId) => {
     try {
       await cancelAppointment(appointmentId);

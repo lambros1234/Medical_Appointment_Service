@@ -138,16 +138,13 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
-    @DeleteMapping("/cancel/{appointment_id}")
+    @PatchMapping("/cancel/{appointment_id}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
-        Optional<Appointment> optionalAppointment= appointmentService.getAppointmentById(appointment_id);
-        if(optionalAppointment.isPresent()) {
-            Appointment appointment = optionalAppointment.get();
-            appointmentService.deleteAppointmentById(appointment_id);
-            return ResponseEntity.ok("Appointment deleted successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found.");
-        }
+
+        appointmentService.cancelAppointment(appointment_id);
+
+        return ResponseEntity.ok("Appointment cancelled.");
     }
     @PreAuthorize("hasRole('DOCTOR')")
     @PatchMapping("/confirm/{appointment_id}")

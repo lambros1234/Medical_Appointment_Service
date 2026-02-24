@@ -21,7 +21,6 @@ export default function RegisterPage() {
     address: "",
     specialty: "", // doctor only
   });
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [specialties, setSpecialties] = useState([]);
   const [newSpecialty, setNewSpecialty] = useState(""); // for "Other"
@@ -60,7 +59,7 @@ export default function RegisterPage() {
       }
       const payload = { ...formData, role: [role], specialty: specialtyToSend, }; // Add role
       console.log(payload);
-      const response = await registerUser(payload);
+      await registerUser(payload);
       setSuccessMessage("Success");
     } catch (err) {
       setErrorMessage("Failed to register");
@@ -227,10 +226,6 @@ export default function RegisterPage() {
         >
           Register
         </button>
-
-        {message && (
-          <p className="text-center mt-4 text-sm text-gray-600">{message}</p>
-        )}
       </form>
     </div>
   );
