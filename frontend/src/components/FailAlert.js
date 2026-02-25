@@ -12,7 +12,7 @@ const Alert = ({ message, onClose }) => {
         type="button"
         aria-label="close-error"
         onClick={(e) => {
-          e.stopPropagation();           // prevent bubbling
+          e.stopPropagation(); // prevent bubbling
           if (typeof onClose === 'function') {
             console.log('Alert: onClose clicked'); // debug log
             onClose();
