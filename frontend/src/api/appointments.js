@@ -43,9 +43,10 @@ export async function fetchDoctorAppointments(doctorId, date) {
 
 // Cancel
 export async function cancelAppointment(appointmentId) {
-  const response = await axios.delete(
+  const response = await axios.patch(
     `${API_URL}/cancel/${appointmentId}`,
-    getAuthHeader()
+    {},                  
+    getAuthHeader()       
   );
   return response.data;
 }

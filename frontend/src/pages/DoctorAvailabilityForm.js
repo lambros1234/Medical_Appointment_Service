@@ -46,7 +46,6 @@ export default function DoctorAvailabilityForm() {
     const loadAvailability = async () => {
       try {
         const data = await fetchMyAvailability();
-        console.log("Loaded availability:", data);
         setAvailabilities(data);
       } catch (err) {
         console.error("Failed to fetch availability", err);

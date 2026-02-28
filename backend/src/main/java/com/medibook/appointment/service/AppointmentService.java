@@ -6,7 +6,6 @@ import com.medibook.appointment.entities.*;
 import com.medibook.appointment.mapper.AppointmentMapper;
 import com.medibook.appointment.repositories.AppointmentRepository;
 import com.medibook.appointment.repositories.DoctorProfileRepository;
-import com.medibook.appointment.repositories.NotificationRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +66,7 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         System.out.println("Appointment Saved");
 
+        // Create Emails for patient and Doctor
         emailService.sendAppointmentConfirmationEmailPatient(
                 userEmail,
                 appointment.getDate().toString(),
@@ -78,6 +78,16 @@ public class AppointmentService {
                 doctor.getUser().getEmail(),
                 appointment.getDate().toString(),
                 appointment.getTime().toString()
+        );
+
+        // Create doctor notification
+        notificationService.createNotification(
+                doctor.getUser(),
+                "New pending appointment on "
+                        + appointment.getDate() + " at "
+                        + appointment.getTime()
+                        + " from patient "
+                        + user.getLastName()
         );
 
         return appointment;

@@ -27,7 +27,6 @@ export const fetchAvailabilityByDoctor = async (doctorId) => {
 export const fetchMyAvailability = async () => {
   try {
     const response = await axios.get(`${API_URL}/${doctorID}`, getAuthHeader());
-    console.log("Fetched my availability:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching my availability:", error);

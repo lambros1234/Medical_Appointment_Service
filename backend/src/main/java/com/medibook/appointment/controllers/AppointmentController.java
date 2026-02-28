@@ -138,9 +138,7 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
-
     @PatchMapping("/cancel/{appointment_id}")
-    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
 
         appointmentService.updateAppointmentStatus(appointment_id, AppointmentStatus.CANCELLED);
