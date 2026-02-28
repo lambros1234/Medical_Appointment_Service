@@ -6,6 +6,7 @@ import com.medibook.appointment.entities.*;
 import com.medibook.appointment.mapper.AppointmentMapper;
 import com.medibook.appointment.repositories.AppointmentRepository;
 import com.medibook.appointment.repositories.DoctorProfileRepository;
+import com.medibook.appointment.repositories.NotificationRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,17 @@ public class AppointmentService {
     private final UserService userService;
     private final DoctorProfileService doctorProfileService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository,  AppointmentMapper appointmentMapper,  UserService userService, DoctorProfileService doctorProfileService, DoctorProfileRepository doctorProfileRepository, EmailService emailService) {
+    public AppointmentService(AppointmentRepository appointmentRepository,  AppointmentMapper appointmentMapper,  UserService userService, DoctorProfileService doctorProfileService, DoctorProfileRepository doctorProfileRepository, EmailService emailService, NotificationService notificationService)
+    {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.userService = userService;
         this.doctorProfileService = doctorProfileService;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -80,7 +84,6 @@ public class AppointmentService {
     }
 
     public void updateAppointment(final Appointment appointment) {
-
         this.appointmentRepository.save(appointment);
     }
 
@@ -114,14 +117,54 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void cancelAppointment(Long id) {
+    public void updateAppointmentStatus(Long id, AppointmentStatus status) {
+
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointment.setStatus(status);
         appointmentRepository.save(appointment);
-        emailService.sendAppointmentCancelationEmailDoctor(appointment.getDoctor().getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString());
-        emailService.sendAppointmentCancelationEmailPatient(appointment.getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
+
+        User patient = appointment.getUser();
+
+        if (status == AppointmentStatus.CANCELLED) {
+
+            emailService.sendAppointmentCancelationEmailDoctor(
+                    appointment.getDoctor().getUser().getEmail(),
+                    appointment.getDate().toString(),
+                    appointment.getTime().toString()
+            );
+
+            emailService.sendAppointmentCancelationEmailPatient(
+                    patient.getEmail(),
+                    appointment.getDate().toString(),
+                    appointment.getTime().toString(),
+                    appointment.getDoctor().getUser().getLastName()
+            );
+
+            // NOTIFICATION
+            notificationService.createNotification(
+                    patient,
+                    "Your appointment on " + appointment.getDate() +
+                            " at " + appointment.getTime() + " was CANCELLED."
+            );
+
+        } else if (status == AppointmentStatus.CONFIRMED) {
+
+            emailService.sendAppointmentConfirmationEmailPatient(
+                    patient.getEmail(),
+                    appointment.getDate().toString(),
+                    appointment.getTime().toString(),
+                    appointment.getDoctor().getUser().getLastName()
+            );
+
+            // NOTIFICATION
+            notificationService.createNotification(
+                    patient,
+                    "Your appointment on " + appointment.getDate() +
+                            " at " + appointment.getTime() + " was CONFIRMED."
+            );
+        }
     }
 
     public AppointmentResponseDTO getAppointmentResponseDTO(Appointment appointment) {

@@ -138,27 +138,24 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
     }
+
     @PatchMapping("/cancel/{appointment_id}")
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
 
-        appointmentService.cancelAppointment(appointment_id);
+        appointmentService.updateAppointmentStatus(appointment_id, AppointmentStatus.CANCELLED);
 
         return ResponseEntity.ok("Appointment cancelled.");
     }
-    @PreAuthorize("hasRole('DOCTOR')")
+
+
     @PatchMapping("/confirm/{appointment_id}")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<String> confirmAppointment(@PathVariable Long appointment_id) {
-        Optional<Appointment> optionalAppointment= appointmentService.getAppointmentById(appointment_id);
-        if(optionalAppointment.isPresent()) {
-            Appointment appointment = optionalAppointment.get();
-            appointment.setStatus(AppointmentStatus.CONFIRMED);
-            emailService.sendAppointmentConfirmationbyDoctor(appointment.getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
-            appointmentService.updateAppointment(appointment);
-            return ResponseEntity.ok("Appointment confirmed successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Appointment not found.");
-        }
+
+        appointmentService.updateAppointmentStatus(appointment_id, AppointmentStatus.CONFIRMED);
+
+        return ResponseEntity.ok("Appointment confirmed.");
     }
 
 
