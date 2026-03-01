@@ -3,8 +3,6 @@ import StatCard from "../../components/dashboard/StatCard";
 import QuickActionCard from "../../components/dashboard/QuickActionCard";
 import ActivityList from "../../components/dashboard/ActivityList";
 
-
-
 // TODO: Fetch real data for stats and activities, and implement real links for quick actions
 
 export default function AdminDashboard() {

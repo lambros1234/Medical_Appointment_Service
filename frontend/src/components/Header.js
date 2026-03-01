@@ -75,7 +75,7 @@ export default function Header() {
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-white/10 shadow-sm">
+    <nav className="fixed top-0 w-full z-50 bg-slate-950/85 backdrop-blur-md border-b border-white/10 shadow-sm">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between">
 
@@ -87,7 +87,8 @@ export default function Header() {
               <img
                 src={Logo}
                 alt="MediBook Logo"
-                className="h-20 w-auto object-contain"
+                className="h-16 sm:h-20 w-auto scale-110"
+
               />
             </Link>
 
