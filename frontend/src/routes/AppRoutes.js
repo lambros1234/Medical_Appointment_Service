@@ -1,12 +1,15 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "../pages/LogIn";
-import Register from "../pages/Register";
-import AppointmentsList from "../pages/AppointmentsList";
-import UserList from "../pages/UserList";
-import DoctorAvailabilityForm from "../pages/DoctorAvailabilityForm";
-import DoctorAppointmentsList from "../pages/DoctorAppointmentsList";
-import DoctorList from "../pages/DoctorList";
-import Home from "../pages/Home";
+import Login from "../pages/public/LogIn";
+import Register from "../pages/public/Register";
+import AppointmentsList from "../pages/patient/AppointmentsList";
+import UserList from "../pages/admin/UserList";
+import DoctorAvailabilityForm from "../pages/doctor/DoctorAvailabilityForm";
+import DoctorAppointmentsList from "../pages/doctor/DoctorAppointmentsList";
+import DoctorList from "../pages/patient/DoctorList";
+import Home from "../pages/public/Home";
+import PatientDashboard from "../pages/dashboard/PatientDashboard";
+import DoctorDashboard from "../pages/dashboard/DoctorDashboard";
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
 
 export default function AppRoutes() {
   return (
@@ -19,6 +22,9 @@ export default function AppRoutes() {
       <Route path="/availability" element={<DoctorAvailabilityForm/>}/>
       <Route path="/doctor-appointments" element={<DoctorAppointmentsList/>}/>
       <Route path="/doctors" element={<DoctorList/>}/>
+      <Route path="/dashboard/patient" element={<PatientDashboard />} />
+      <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
+      <Route path="/dashboard/admin" element={<AdminDashboard />} />
     </Routes>
   );
 }

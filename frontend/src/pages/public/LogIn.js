@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import FailAlert from "../components/FailAlert";
-import { Login } from "../api/auth"; 
+import FailAlert from "../../components/FailAlert";
+import { Login } from "../../api/auth"; 
 
 
 export default function LogIn() {
