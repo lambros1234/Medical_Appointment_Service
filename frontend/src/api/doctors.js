@@ -1,28 +1,19 @@
-import axios from "axios";
+import { api } from "./apiClient";
 
-export async function getDoctors() {
+export const getDoctors = async () => {
   try {
-    const token = localStorage.getItem("token"); // Retrieve stored JWT
-    const res = await axios.get("http://localhost:8080/api/doctor", {      
-      headers: {
-        Authorization: `Bearer ${token}`
-      }}); 
-    return res.data; // Axios puts the JSON directly in `data`
+    const response = await api.get("/doctor");
+    return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch doctors: " + error.message);
+    throw new Error("Failed to fetch doctors: " + (error.response?.data?.error || error.message));
   }
-}
+};
 
 export const getDoctorsFull = async () => {
   try {
-    const token = localStorage.getItem("token"); // Retrieve stored JWT
-    const response = await axios.get(`http://localhost:8080/api/doctor/full`, {
-      headers: {  
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await api.get("/doctor/full");
     return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch full doctor data: " + error.message);
+    throw new Error("Failed to fetch full doctor data: " + (error.response?.data?.error || error.message));
   }
 };

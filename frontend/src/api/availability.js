@@ -1,76 +1,39 @@
-import axios from "axios";
+import { api } from "./apiClient";
 
-const API_URL = "http://localhost:8080/api/availability";
+const AVAILABILITY_URL = "/availability";
 
-const getAuthHeader = () => ({
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
-
-const doctorID = localStorage.getItem("doctorID");
-
+// Always read latest doctorID (avoid stale value on first login)
+const getDoctorId = () => localStorage.getItem("doctorID");
 
 // Fetch availability for a specific doctor (PUBLIC VIEW)
 export const fetchAvailabilityByDoctor = async (doctorId) => {
-  try {
-    const response = await axios.get(`${API_URL}/${doctorId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching doctor availability:", error);
-    throw error;
-  }
+  const response = await api.get(`${AVAILABILITY_URL}/${doctorId}`);
+  return response.data;
 };
-
 
 // Fetch availability for logged-in doctor (DASHBOARD)
 export const fetchMyAvailability = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/${doctorID}`, getAuthHeader());
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching my availability:", error);
-    throw error;
-  }
+  const doctorID = getDoctorId();
+  const response = await api.get(`${AVAILABILITY_URL}/${doctorID}`);
+  return response.data;
 };
-
 
 // Add availability (doctor dashboard)
 export const addAvailability = async (availability) => {
-  try {
-    const response = await axios.post(
-      `${API_URL}/${doctorID}`,
-      availability,
-      getAuthHeader()
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error adding availability:", error);
-    throw error;
-  }
+  const doctorID = getDoctorId();
+  const response = await api.post(`${AVAILABILITY_URL}/${doctorID}`, availability);
+  return response.data;
 };
 
+// Fetch slots for booking (PUBLIC VIEW)
 export const fetchSlots = async (doctorId, date) => {
-  try {
-    const response = await axios.get(
-      `${API_URL}/${doctorId}/slots?date=${date}`
-      ,getAuthHeader() 
-    );
-    return response.data;
-} catch (error) {
-  console.error("Error fetching slots:", error);
-  throw error;  
-}
+  const response = await api.get(`${AVAILABILITY_URL}/${doctorId}/slots`, {
+    params: { date },
+  });
+  return response.data;
 };
 
 export const deleteAvailability = async (id) => {
-  try {    const response = await axios.delete(
-      `${API_URL}/${id}`,
-      getAuthHeader()
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting availability:", error);
-    throw error;
-  }
+  const response = await api.delete(`${AVAILABILITY_URL}/${id}`);
+  return response.data;
 };
