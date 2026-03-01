@@ -1,102 +1,195 @@
-# Medical Appointment Service
+# 🏥 Medical Appointment Service
 
-A full-stack application for booking and managing medical appointments.  
-Built with **Spring Boot (backend)**, **React (frontend)**, and **PostgreSQL**.
+🚧 This project is actively under development.
+New features, UI improvements, and architectural enhancements are continuously being added.
 
-Built with the tools and technologies:
+## 📌 Overview
+Medical Appointment Service is a full-stack web application designed to streamline healthcare scheduling and management.
 
-`JSON` • `Markdown` • `Spring` • `npm` • `JavaScript` • `React`  
-`Docker` • `XML` • `PostgreSQL` • `Axios` • `styled-components` • `YAML`
+It provides a secure backend and dynamic role-based frontend, allowing seamless interaction between:
+- 🧑‍⚕️ Doctors
+- 🧑 Patients
+- 🛠️ Administrators
+The system supports secure authentication, appointment booking, real-time status updates, and email notifications.
+ 
+## 🚀 Tech Stack
+### Backend
+- Java
+- Spring Boot
+- Spring Security (JWT Authentication)
+- Spring Data JPA
+- PostgreSQL
+- MailHog (Email testing)
+### Frontend
+- React
+- Axios
+- TailwindCSS
+- Material UI
+### DevOps
+- Docker
+- Docker Compose
 
----
+## ✨ Features 
+### 🔐 Authentication & Authorization
+- JWT-based authentication
+- Role-based access control
+- Account approval system (Admin-controlled)
+### 👥 Role-Based Actions
+#### 🧑 Patient
+- Browse doctors
+- Book appointments
+- Cancel appointments
+- View appointment status
+#### 🧑‍⚕️ Doctor
+- Set availability
+- View patient appointments
+- Confirm or cancel appointments
+#### 🛠️ Admin
+- Manage users
+- Approve accounts
+- Delete users
+#### 📧 Notifications
+- Email notifications for
+  - Registration
+  - Appointment booking
+  - Appointment confirmation
+  - Appointment cancellation
+- In-app notification system 
 
-## Table of Contents
+## 🏗️ Architecture
+- RESTful API built with Spring Boot
+- JWT Authentication with role-based authorization
+- React SPA frontend with protected routes
+- PostgreSQL relational database
+- Dockerized services using Docker Compose
 
-- [Overview](#overview)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Databse](#database)
-- [Credentials](#credentials)
+## 📂 Project Structure (Monorepo)
+```text  
+  Medical_Appointment_Service/
+  │
+  ├── backend/          → Spring Boot application
+  ├── frontend/         → React application
+  ├── docker-compose.yml
+  └── README.md
+```
 
----
-## Overview
-
-**Medical_Appointment_Service** is a comprehensive platform designed to streamline healthcare scheduling and management for developers building medical systems.  
-It integrates a secure backend with a dynamic, role-based frontend, supporting seamless communication between patients and healthcare providers.
-
-
-## Features
-- User authentication (patients, doctors, admin)
-- Book, confirm, and cancel appointments
-- Role-based actions:
-  - Patients can book and cancel appointments
-  - Doctors can confirm appointments
-  - Admins can manage users
-- Email notifications (via Mailhog for testing)
-
----
-
-## Requirements
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/)
-
----
-
-## Installation 
-
-Clone the repository:
+## ⚙️ Installation
+### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/chalatsis2004/Medical_Appointment_Service
 cd Medical_Appointment_Service
 ```
-Build and start the service:
-```
-docker-compose up --build
-```
-This will start:
-- Backend: http://localhost:8080
-- Frontend: http://localhost:3000
-- MailHog: (fake SMTP for dev): http://localhost:8025
-- PostgreSQL: http://localhost:5432 (if enabled)
-
-## Databse 
-
-This project requires a PostgreSQL database.
-- If you already have Postgres running, update the backend’s application.properties with your DB connection.
-- If not, you can use the provided Docker Compose service.
-
-In docker-compose.yml, the db service is commented out by default.
-To use it:
-- Uncomment the db service section.
-- Update the backend service environment variables if needed (or keep defaults).
-
-Example db service:
-```
-  db:
-    image: postgres:15
-    container_name: db
-    environment:
-      POSTGRES_DB: medical_appointments
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-```
-Then restart with: 
-```
+### 2️⃣ Start the application
+```bash
 docker-compose up --build
 ```
 
-## Credentials
-When the application starts, you can sign up via the frontend.
-Default roles available:
+## 🌐 Services
+After running Docker:
+| Service       | URL                    |
+| ------------- | ---------------------- |
+| Frontend      | http://localhost:3000  |
+| Backend       | http://localhost:8080  |
+| MailHog       | http://localhost:8025  |
+| PostgreSQL    | localhost:5432         |
+
+## 🗄️ Database Setup
+This project uses PostgreSQL
+
+If you already have PostgreSQL running: 
+- Update application.properties in the backend with your database credentials
+If not:
+- Uncomment the **DB** service in **docker-compose.yml**
+Example
+```yaml
+db:
+  image: postgres:15
+  container_name: db
+  environment:
+    POSTGRES_DB: medical_appointments
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  ports:
+    - "5432:5432"
+  volumes:
+    - db_data:/var/lib/postgresql/data
+```
+Then restart:
+```bash
+docker-compose up --build
+```
+
+## 🔑 Default Credentials (Testing)
+You can register new users via the frontend
+
+Default admin account:
+```code
+Username: admin1
+Password: admin123
+```
+Available Roles:
 - ROLE_ADMIN
-- ROLE_PATIENT
 - ROLE_DOCTOR
+- ROLE_PATIENT
 
-Default user (for testing):
-- Username: admin1
-- Password: admin123
+## 🔌 Example API Endpoint
+### Create Appointment
+#### Post /api/appointment
+```json
+{
+  "doctorId": 3,
+  "date": "2026-03-01",
+  "time": "10:30"
+}
+```
+Response: 
+```json
+{
+  "id": 15,
+  "status": "PENDING"
+}
+```
+
+## 📸 Screenshots
+### Landing Page
+<img width="1913" height="971" alt="image" src="https://github.com/user-attachments/assets/af882658-8dbc-4de9-880b-7c2190d2ffa3" />
+
+### Admin Dashboard 
+<img width="1904" height="994" alt="image" src="https://github.com/user-attachments/assets/27d375bf-3205-4f46-905d-e434283f4bce" />
+
+### Doctor Dashboard
+<img width="1905" height="984" alt="image" src="https://github.com/user-attachments/assets/10f3e19b-6504-440c-8fde-62bf9c276d05" />
+
+### Patient Dashboard
+<img width="1906" height="990" alt="image" src="https://github.com/user-attachments/assets/7d2b7879-200d-4d7d-9819-f6e3a0145f95" />
+
+## 🔮 Future Improvements
+- Real-time notifications (WebSockets)
+- Appointment Reminders
+- Payment Integration
+- CI/CD Pipeline
+- Cloud Deployment(AWS/Render)
+- Unit & integration testing
+- Calendar sync (Google Calendar)
+
+## 🎯 Why This Project Matters
+This project demonstrates:
+- Full-stack development
+- Secure authentication & authorization
+- REST API design
+- Role-based system architecture
+- Containerization with Docker
+- Real-world business logic implementation
+
+## 📬 Contact
+If you'd like to connect or discuss this project:
+- GitHub: https://github.com/lambros1234
+- Email: lambroshalatsis154@gmail.com
+
+## ⭐ Final Notes
+This project is continuously evolving and serves as a real-world demonstration of modern full-stack architecture using Spring Boot and React.
+
+Contributions, feedback, and suggestions are welcome!
+
+
+ 
