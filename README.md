@@ -152,16 +152,16 @@ Response:
 
 ## 📸 Screenshots
 ### Landing Page
-<img width="1913" height="971" alt="image" src="https://github.com/user-attachments/assets/af882658-8dbc-4de9-880b-7c2190d2ffa3" />
+<img width="1913" height="970" alt="image" src="https://github.com/user-attachments/assets/a52d0361-62a9-4f47-abaf-86f15a6e77d4" />
 
 ### Admin Dashboard 
-<img width="1904" height="994" alt="image" src="https://github.com/user-attachments/assets/27d375bf-3205-4f46-905d-e434283f4bce" />
+<img width="1902" height="990" alt="image" src="https://github.com/user-attachments/assets/dffda799-9e2c-4283-8ded-9ebc5caed7e6" />
 
 ### Doctor Dashboard
-<img width="1905" height="984" alt="image" src="https://github.com/user-attachments/assets/10f3e19b-6504-440c-8fde-62bf9c276d05" />
+<img width="1903" height="992" alt="image" src="https://github.com/user-attachments/assets/9e70f665-a1ba-4334-9b2c-4dcf7a7b8af3" />
 
 ### Patient Dashboard
-<img width="1906" height="990" alt="image" src="https://github.com/user-attachments/assets/7d2b7879-200d-4d7d-9819-f6e3a0145f95" />
+<img width="1902" height="971" alt="image" src="https://github.com/user-attachments/assets/2fd34062-f388-4a75-8550-37d29fe589b2" />
 
 ## 🔮 Future Improvements
 - Real-time notifications (WebSockets)
