@@ -3,7 +3,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
-import AlertDialog from "../components/SuccessAlert";
+import AlertDialog from "../../components/SuccessAlert";
 import {
   MenuItem,
   Select,
@@ -18,12 +18,12 @@ import {
   Container,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MainLayout from "../layouts/MainLayout";
+import MainLayout from "../../layouts/MainLayout";
 import {
   fetchMyAvailability,
   addAvailability,
   deleteAvailability,
-} from "../api/availability";
+} from "../../api/availability";
 
 export default function DoctorAvailabilityForm() {
   const [dayOfWeek, setDayOfWeek] = useState("MONDAY");
@@ -46,7 +46,6 @@ export default function DoctorAvailabilityForm() {
     const loadAvailability = async () => {
       try {
         const data = await fetchMyAvailability();
-        console.log("Loaded availability:", data);
         setAvailabilities(data);
       } catch (err) {
         console.error("Failed to fetch availability", err);

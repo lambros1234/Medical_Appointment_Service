@@ -1,23 +1,22 @@
-import axios from "axios";
+import { api } from "./apiClient";
 
-const API_URL = "http://localhost:8080/api/specialties";
+const SPECIALTIES_URL = "/specialties";
 
 export const fetchSpecialties = async () => {
-    const response = await axios.get(API_URL);
-    console.log("Fetched specilaties:", response.data);
-    return response.data;
-}
+  const response = await api.get(SPECIALTIES_URL);
+  console.log("Fetched specialties:", response.data);
+  return response.data;
+};
 
 export const createSpecialty = async (name) => {
   try {
-    await axios.post(API_URL + "/new", { name });
-    return true; // created successfully
+    await api.post(`${SPECIALTIES_URL}/new`, { name });
+    return true;
   } catch (err) {
-    if (err.response && err.response.status === 409) {
+    if (err.response?.status === 409) {
       console.log("Specialty already exists");
-      return false; // conflict, already exists
-    } else {
-      throw err;
+      return false;
     }
+    throw err;
   }
 };

@@ -1,32 +1,23 @@
-import axios from "axios";
+import { api } from "./apiClient";
 
-const API_URL = "http://localhost:8080/api/users";
-const token = localStorage.getItem("token");
-
-const authHeader = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+const USERS_URL = "/users";
 
 export const fetchUsers = async () => {
-    const response = await axios.get(API_URL, authHeader );
-    return response.data;
+  const response = await api.get(USERS_URL);
+  return response.data;
 };
-// Delete a user
+
 export const deleteUser = async (userId) => {
-  const response = await axios.delete(`${API_URL}/${userId}`, authHeader);
+  const response = await api.delete(`${USERS_URL}/${userId}`);
   return response.data;
 };
 
-// Approve a user
 export const approveUser = async (userId) => {
-  const response = await axios.patch(`${API_URL}/${userId}/approve`, null, authHeader);
+  const response = await api.patch(`${USERS_URL}/${userId}/approve`);
   return response.data;
 };
 
-// Update/Edit a user
 export const updateUser = async (userId, data) => {
-  const response = await axios.put(`${API_URL}/${userId}`, data, authHeader);
+  const response = await api.put(`${USERS_URL}/${userId}`, data);
   return response.data;
 };

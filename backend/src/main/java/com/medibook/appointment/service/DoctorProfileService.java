@@ -2,9 +2,9 @@ package com.medibook.appointment.service;
 
 import com.medibook.appointment.dto.DoctorDTO;
 import com.medibook.appointment.entities.Doctor_Profile;
-import com.medibook.appointment.entities.User;
 import com.medibook.appointment.mapper.DoctorMapper;
 import com.medibook.appointment.repositories.DoctorProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +17,7 @@ public class DoctorProfileService {
 
     DoctorMapper doctorMapper;
 
+    @Autowired
     public DoctorProfileService(DoctorProfileRepository doctorProfileRepository,  DoctorMapper doctorMapper) {
         this.doctorProfileRepository = doctorProfileRepository;
         this.doctorMapper = doctorMapper;

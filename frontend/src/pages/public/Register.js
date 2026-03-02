@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { registerUser } from "../api/auth";
+import { registerUser } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-import SuccessAlert from "../components/SuccessAlert"
-import FailAlert from "../components/FailAlert";
-import { fetchSpecialties, createSpecialty } from "../api/specialties"; // create an API function to fetch specialties
+import SuccessAlert from "../../components/SuccessAlert"
+import FailAlert from "../../components/FailAlert";
+import { fetchSpecialties, createSpecialty } from "../../api/specialties"; // create an API function to fetch specialties
 import { useEffect } from "react";
 
 

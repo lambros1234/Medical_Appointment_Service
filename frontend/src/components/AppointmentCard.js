@@ -1,84 +1,82 @@
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 
 export default function AppointmentCard({ appointment, onCancel, onConfirm }) {
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const role = localStorage.getItem("role")?.trim();
-    setUserRole(role);
+  const roles = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("roles");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    const single = localStorage.getItem("role");
+    return single ? [single] : [];
   }, []);
 
-  const handleCancel = async () => {
-    if (onCancel) onCancel(appointment.id);
-  };
+  const isPatient = roles.includes("ROLE_PATIENT");
+  const isDoctor = roles.includes("ROLE_DOCTOR");
 
-  const handleConfirm = async () => {
-    if (onConfirm) onConfirm(appointment.id);
-  };
+  const canCancel =
+    (isPatient && appointment.status !== "CANCELLED") ||
+    (isDoctor && appointment.status === "CONFIRMED"); // keep your logic if you want
+
+  const canConfirm = isDoctor && appointment.status !== "CONFIRMED" && appointment.status !== "CANCELLED";
+
+  const statusStyles =
+    appointment.status === "CONFIRMED"
+      ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
+      : appointment.status === "CANCELLED"
+      ? "bg-red-50 text-red-700 ring-red-200"
+      : "bg-yellow-50 text-yellow-700 ring-yellow-200";
+
+  const title = isPatient ? `Dr. ${appointment.doctorName}` : appointment.patientName;
+  const subtitle = isPatient ? `Patient: ${appointment.patientName}` : `Doctor: ${appointment.doctorName}`;
 
   return (
-    <li className="flex justify-between gap-x-6 py-5 px-4 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-      {/* Left: patient info */}
-      <div className="flex min-w-0 gap-x-4">
-        <img
-          alt=""
-          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-            appointment.patientName
-          )}`}
-          className="size-12 flex-none rounded-full bg-gray-200"
-        />
-        <div className="min-w-0 flex-auto">
-          <p className="text-sm font-semibold">{appointment.patientName}</p>
-          <p className="mt-1 text-xs text-gray-500">Doctor: {appointment.doctorName}</p>
+    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition">
+      {/* Top */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <img
+            alt=""
+            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=E8F0FE&color=1D4ED8`}
+            className="h-11 w-11 rounded-full bg-gray-100 flex-none"
+          />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 truncate">{title}</p>
+            <p className="mt-0.5 text-xs text-gray-500 truncate">{subtitle}</p>
+          </div>
+        </div>
+
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusStyles}`}>
+          {appointment.status}
+        </span>
+      </div>
+
+      {/* Middle */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-900 font-medium">
+          {appointment.date} • {appointment.time}
         </div>
       </div>
 
-      {/* Right: date, status, actions */}
-      <div className="flex flex-col items-end gap-2">
-        <p className="text-sm text-gray-900">
-          {appointment.date} at {appointment.time}
-        </p>
-        <div className="flex items-center gap-x-1.5">
-          <div
-            className={`flex-none rounded-full p-1 ${
-              appointment.status === "CONFIRMED"
-                ? "bg-emerald-500/20"
-                : "bg-yellow-500/20"
-            }`}
-          >
-            <div
-              className={`size-1.5 rounded-full ${
-                appointment.status === "CONFIRMED"
-                  ? "bg-emerald-500"
-                  : "bg-yellow-500"
-              }`}
-            />
-          </div>
-          <p className="text-xs text-gray-500">{appointment.status}</p>
-        </div>
-
-        {(
-          userRole?.includes("PATIENT") || 
-          (userRole?.includes("DOCTOR") && appointment.status === "CONFIRMED")
-        ) && (
+      {/* Actions */}
+      <div className="mt-4 flex gap-2">
+        {canCancel && (
           <button
-            onClick={handleCancel}
-            className="rounded bg-red-500 px-3 py-1 text-xs text-white hover:bg-red-600"
+            onClick={() => onCancel?.(appointment.id)}
+            className="flex-1 rounded-xl bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 transition"
           >
             Cancel
           </button>
         )}
 
-        {userRole?.includes("DOCTOR") && appointment.status !== "CONFIRMED" && (
+        {canConfirm && (
           <button
-            onClick={handleConfirm}
-            className="rounded bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
+            onClick={() => onConfirm?.(appointment.id)}
+            className="flex-1 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition"
           >
             Confirm
           </button>
         )}
-
       </div>
-    </li>
+    </div>
   );
 }

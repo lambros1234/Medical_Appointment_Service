@@ -1,5 +1,6 @@
 package com.medibook.appointment.service;
 
+import com.medibook.appointment.config.SecurityUtils;
 import com.medibook.appointment.dto.AppointmentRequestDTO;
 import com.medibook.appointment.dto.AppointmentResponseDTO;
 import com.medibook.appointment.entities.*;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,14 +26,17 @@ public class AppointmentService {
     private final UserService userService;
     private final DoctorProfileService doctorProfileService;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public AppointmentService(AppointmentRepository appointmentRepository,  AppointmentMapper appointmentMapper,  UserService userService, DoctorProfileService doctorProfileService, DoctorProfileRepository doctorProfileRepository, EmailService emailService) {
+    public AppointmentService(AppointmentRepository appointmentRepository,  AppointmentMapper appointmentMapper,  UserService userService, DoctorProfileService doctorProfileService, DoctorProfileRepository doctorProfileRepository, EmailService emailService, NotificationService notificationService)
+    {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.userService = userService;
         this.doctorProfileService = doctorProfileService;
         this.emailService = emailService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -63,6 +69,7 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
         System.out.println("Appointment Saved");
 
+        // Create Emails for patient and Doctor
         emailService.sendAppointmentConfirmationEmailPatient(
                 userEmail,
                 appointment.getDate().toString(),
@@ -76,12 +83,28 @@ public class AppointmentService {
                 appointment.getTime().toString()
         );
 
+        // Create doctor notification
+        notificationService.createNotification(
+                doctor.getUser(),
+                "New pending appointment on "
+                        + appointment.getDate() + " at "
+                        + appointment.getTime()
+                        + " from patient "
+                        + user.getLastName()
+        );
+
         return appointment;
     }
 
-    public void updateAppointment(final Appointment appointment) {
-
-        this.appointmentRepository.save(appointment);
+    public void updateAppointment(Long appointment_id, AppointmentRequestDTO newAppointment) {
+        Optional<Appointment> optionalAppointment= appointmentRepository.findById(appointment_id);
+        if(optionalAppointment.isPresent()) {
+            Appointment appointment = optionalAppointment.get();
+            appointment.setDate(newAppointment.getDate());
+            appointment.setDescription(newAppointment.getDescription());
+            appointment.setTime(newAppointment.getTime());
+            appointmentRepository.save(appointment);
+        }
     }
 
     public List<Appointment> getAppointments() {
@@ -114,14 +137,38 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void cancelAppointment(Long id) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
+    public List<AppointmentResponseDTO> getMyAppointments(String email) {
 
-        appointment.setStatus(AppointmentStatus.CANCELLED);
-        appointmentRepository.save(appointment);
-        emailService.sendAppointmentCancelationEmailDoctor(appointment.getDoctor().getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString());
-        emailService.sendAppointmentCancelationEmailPatient(appointment.getUser().getEmail(), appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
+        User user = userService.findUserByEmail(email);
+
+        List<Appointment> result = new ArrayList<>();
+
+        // PATIENT
+        if (SecurityUtils.hasRole(user, "ROLE_PATIENT") && user.getPatientProfile() != null) {
+            result.addAll(getAppointmentsByPatient(user));
+        }
+
+        // DOCTOR
+        if (SecurityUtils.hasRole(user, "ROLE_DOCTOR") && user.getDoctorProfile() != null) {
+            result.addAll(getAppointmentsByDoctorProfile(user.getDoctorProfile()));
+        }
+
+        // ADMIN
+        if (SecurityUtils.hasRole(user, "ROLE_ADMIN")) {
+            result = appointmentRepository.findAll();
+        }
+
+        // Map to DTOs
+        List<AppointmentResponseDTO> dtos = result.stream()
+                .map(this::getAppointmentResponseDTO)   // assuming you already have this method
+                .toList();
+
+        // Optional: sort by date then time (remove if you don’t want sorting)
+        return dtos.stream()
+                .sorted(Comparator
+                        .comparing(AppointmentResponseDTO::getDate)
+                        .thenComparing(AppointmentResponseDTO::getTime))
+                .toList();
     }
 
     public AppointmentResponseDTO getAppointmentResponseDTO(Appointment appointment) {
@@ -142,6 +189,68 @@ public class AppointmentService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void cancelAppointment(Long appointmentId) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));
+
+
+        // Optional but recommended: ensure only the patient who booked can cancel
+        User patient = userService.findUserByEmail(appointment.getUser().getEmail());
+        if (!appointment.getUser().getId().equals(patient.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You cannot cancel this appointment.");
+        }
+
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+
+        User doctorUser = appointment.getDoctor().getUser();
+
+        // Notification to doctor
+        String msg = "Patient " + patient.getFirstName() + " " + patient.getLastName()
+                + " cancelled the appointment on " + appointment.getDate()
+                + " at " + appointment.getTime() + ".";
+
+        notificationService.createNotification(doctorUser, msg);
+
+        // Email to doctor
+        emailService.sendAppointmentCancelationEmailDoctor(
+                doctorUser.getEmail(),
+                appointment.getDate().toString(),
+                appointment.getTime().toString()
+        );
+    }
+
+    @Transactional
+    public void confirmAppointment(Long appointmentId) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Appointment not found"));
+
+        String patientEmail = appointment.getUser().getEmail();
+
+        // Ensure only the patient who booked can cancel
+        User patient = userService.findUserByEmail(patientEmail);
+        if (!appointment.getUser().getId().equals(patient.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You cannot cancel this appointment.");
+        }
+
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        appointmentRepository.save(appointment);
+
+        User doctorUser = appointment.getDoctor().getUser();
+
+        // Notification to Patient
+        String msg = "Patient " + doctorUser.getUsername()
+                + " confirmed the appointment on " + appointment.getDate()
+                + " at " + appointment.getTime() + ".";
+
+        notificationService.createNotification(doctorUser, msg);
+
+        // Email to patient
+        emailService.sendAppointmentConfirmationbyDoctor(patientEmail, appointment.getDate().toString(), appointment.getTime().toString(), appointment.getDoctor().getUser().getLastName());
+    }
 
 
 }
