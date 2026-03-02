@@ -1,7 +1,9 @@
 package com.medibook.appointment.controllers;
 
+import com.medibook.appointment.dto.NotificationDTO;
 import com.medibook.appointment.entities.Notification;
 import com.medibook.appointment.entities.User;
+import com.medibook.appointment.repositories.NotificationRepository;
 import com.medibook.appointment.service.NotificationService;
 import com.medibook.appointment.service.UserDetailsImpl;
 import com.medibook.appointment.service.UserService;
@@ -16,24 +18,23 @@ import java.util.List;
 public class NotificationController {
     private final UserService userService;
     private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
-    public NotificationController(UserService userService, NotificationService notificationService) {
+    public NotificationController(UserService userService, NotificationService notificationService, NotificationRepository notificationRepository) {
         this.userService = userService;
         this.notificationService = notificationService;
+        this.notificationRepository = notificationRepository;
     }
 
     @GetMapping("/unread")
-    public ResponseEntity<List<Notification>> getUnreadNotifications (Authentication authentication) {
-        try {
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-            User user = userService.findUserByEmail(userDetails.getEmail());
+    public List<NotificationDTO> getUnreadNotifications(Authentication authentication) {
+        Long id = ((UserDetailsImpl) authentication.getPrincipal()).getId();
 
-            return ResponseEntity.ok(
-                    notificationService.getUnreadNotifications(user.getId())
-            );
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return notificationRepository
+                .findByUserIdAndReadFalse(id)
+                .stream()
+                .map(NotificationDTO::new)
+                .toList();
     }
 
     @PatchMapping("/read/{id}")

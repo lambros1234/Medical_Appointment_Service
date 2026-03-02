@@ -1,17 +1,10 @@
-import { useEffect, useState } from "react";
-import { fetchUnreadNotifications, markNotificationRead } from "../api/notifications";
+import { markNotificationRead } from "../api/notifications";
 
-export default function NotificationDropdown({ open }) {
-  const [notifications, setNotifications] = useState([]);
-
-  useEffect(() => {
-    if (open) load();
-  }, [open]);
-
-  const load = async () => {
-    const data = await fetchUnreadNotifications();
-    setNotifications(data);
-  };
+export default function NotificationDropdown({
+  open,
+  notifications,
+  setNotifications,
+}) {
 
   const handleClick = async (id) => {
     await markNotificationRead(id);
@@ -19,8 +12,10 @@ export default function NotificationDropdown({ open }) {
   };
 
   const handleClearAll = async () => {
-    await Promise.all(notifications.map(n => markNotificationRead(n.id)));
-    setNotifications([]);
+    await Promise.all(
+      notifications.map(n => markNotificationRead(n.id))
+    );
+    setNotifications([]); // 🔥 THIS now updates Header state
   };
 
   if (!open) return null;
@@ -40,7 +35,9 @@ export default function NotificationDropdown({ open }) {
       </div>
 
       {notifications.length === 0 ? (
-        <div className="p-4 text-gray-500 text-sm">No new notifications</div>
+        <div className="p-4 text-gray-500 text-sm">
+          No new notifications
+        </div>
       ) : (
         notifications.map(n => (
           <div

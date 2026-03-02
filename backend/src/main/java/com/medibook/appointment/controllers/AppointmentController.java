@@ -60,7 +60,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/cancel/{appointment_id}")
-    public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id, Authentication authentication) {
+    public ResponseEntity<String> cancelAppointment(@PathVariable Long appointment_id) {
         appointmentService.cancelAppointment(appointment_id);
         return ResponseEntity.ok("Appointment cancelled.");
     }
