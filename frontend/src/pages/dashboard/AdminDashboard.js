@@ -8,8 +8,8 @@ import ActivityList from "../../components/dashboard/ActivityList";
 export default function AdminDashboard() {
   return (
     <MainLayout>
-      <div className="bg-gray-50 min-h-screen pt-24 px-6">
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="bg-slate-50 h-[calc(100vh-80px)] overflow-hidden pt-10">
+          <div className="max-w-7xl mx-auto space-y-8">
 
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 

@@ -7,7 +7,7 @@ export default function Home() {
 
   const handleAppointmentClick = () => {
     const token = localStorage.getItem("token");
-    if (token) navigate("/appointments");
+    if (token) navigate("/doctors");
     else navigate("/login");
   };
 

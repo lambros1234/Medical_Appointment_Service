@@ -1,13 +1,19 @@
 export default function StatCard({ title, value, icon, color }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 flex items-center justify-between hover:shadow-md transition">
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-        <h3 className="text-2xl font-bold mt-1">{value}</h3>
-      </div>
+    <div className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{title}</p>
+          <h3 className="mt-2 text-3xl font-bold text-gray-900">
+            {value}
+          </h3>
+        </div>
 
-      <div className={`text-3xl ${color}`}>
-        {icon}
+        <div
+          className={`h-12 w-12 flex items-center justify-center rounded-xl ${color}`}
+        >
+          <span className="text-xl">{icon}</span>
+        </div>
       </div>
     </div>
   );

@@ -37,6 +37,24 @@ code {
   animation: floatCard 5s ease-in-out infinite;
 }
 
+.react-calendar {
+  border: none;
+  font-family: inherit;
+}
+
+.react-calendar__tile {
+  border-radius: 12px;
+  padding: 10px 0;
+}
+
+.react-calendar__tile--active {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+.react-calendar__navigation button {
+  font-weight: 600;
+}
 
 
 

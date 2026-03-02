@@ -1,9 +1,6 @@
 package com.medibook.appointment.repositories;
 
-import com.medibook.appointment.entities.Appointment;
-import com.medibook.appointment.entities.Doctor_Profile;
-import com.medibook.appointment.entities.Patient_Profile;
-import com.medibook.appointment.entities.User;
+import com.medibook.appointment.entities.*;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +24,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByDoctorIdAndDate(Long doctorId, LocalDate date);
     boolean existsByDoctorAndDateAndTime(Doctor_Profile doctor, LocalDate date, LocalTime time);
 
+    long countByDoctor(Doctor_Profile doctor);
+    long countByDoctorAndStatus(Doctor_Profile doctor, AppointmentStatus status);
+    long countByDoctorAndDate(Doctor_Profile doctor, LocalDate date);
+
+    long countByUser(User user);
+    long countByUserAndStatus(User user, AppointmentStatus status);
+    long countByUserAndDateAfter(User user, LocalDate date);
 }
