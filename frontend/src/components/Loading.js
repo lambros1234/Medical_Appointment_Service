@@ -16,8 +16,8 @@ const StyledWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  height: 100vh; /* full viewport height */
-  width: 100vw;  /* full viewport width */
+  height: 60vh;
+  width: 100%;
 
   svg {
     width: 3.25em;

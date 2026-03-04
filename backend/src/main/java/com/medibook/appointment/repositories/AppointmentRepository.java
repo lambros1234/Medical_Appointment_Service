@@ -31,4 +31,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     long countByUser(User user);
     long countByUserAndStatus(User user, AppointmentStatus status);
     long countByUserAndDateAfter(User user, LocalDate date);
+
+
+    @Query("""
+        SELECT MONTH(a.date) as month, COUNT(a) as count
+        FROM Appointment a
+        GROUP BY MONTH(a.date)
+        ORDER BY MONTH(a.date)
+     """)
+    List<Object[]> countAppointmentsPerMonth();
 }

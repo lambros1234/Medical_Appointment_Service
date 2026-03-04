@@ -5,6 +5,8 @@ import QuickActionCard from "../../components/dashboard/QuickActionCard";
 import ActivityList from "../../components/dashboard/ActivityList";
 import { getPatientDashboardStats } from "../../api/dashboard";
 import { getAppointments } from "../../api/appointments";
+import LoadingSpinner from "../../components/Loading";
+
 
 export default function PatientDashboard() {
   const [stats, setStats] = useState(null);
@@ -24,7 +26,7 @@ export default function PatientDashboard() {
       setStats(statsData);
       setAppointments(appointmentsData);
 
-      // 🔹 Find next upcoming confirmed appointment
+      // Find next upcoming confirmed appointment
       const upcoming = appointmentsData
         .filter(a => new Date(a.date) >= new Date())
         .sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -43,10 +45,8 @@ export default function PatientDashboard() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="pt-24 text-center text-gray-500">
-          Loading dashboard...
-        </div>
-      </MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
     );
   }
 
@@ -134,10 +134,10 @@ export default function PatientDashboard() {
               <h2 className="text-lg font-semibold mb-4">
                 Recent Activity
               </h2>
-
+              
               <ActivityList
-                items={appointments.slice(0, 5).map(
-                  a => `Appointment ${a.status.toLowerCase()} for ${a.date}`
+                items={appointments.slice(0, 5).map( // Show only the 5 most recent appointments
+                  a => `Appointment ${a.status.toLowerCase()} for ${a.date}` // Format: "Appointment confirmed for 2024-06-15"
                 )}
               />
             </div>

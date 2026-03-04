@@ -22,7 +22,8 @@ const UserList = () => {
   const loadUsers = async () => {
     try {
       const data = await fetchUsers();
-      // Remove recursive doctor_profile.user to prevent duplication
+
+      // Clean up doctor_profile to avoid circular references
       const cleanUsers = data.map(user => {
         if (user.doctor_profile && user.doctor_profile.user) {
           return {
@@ -81,7 +82,13 @@ const UserList = () => {
   };
 
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return (
+      <MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
+    );
+  }
 
 
   return (

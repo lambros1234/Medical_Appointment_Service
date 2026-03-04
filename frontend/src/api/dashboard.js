@@ -12,3 +12,13 @@ export async function getPatientDashboardStats() {
   return response.data;
 }
 
+export const getAdminDashboardStats = async () => {
+  const res = await api.get(`${APPOINTMENT_URL}/admin`);
+  return res.data;
+};
+
+
+export const getAppointmentsPerMonth = async () => {
+  const res = await api.get(`${APPOINTMENT_URL}/admin/appointments-per-month`);
+  return res.data;
+};

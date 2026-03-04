@@ -4,6 +4,8 @@ import CalendarCard from "../../components/dashboard/CalendarCard";
 import { useEffect, useState } from "react";
 import { getDoctorDashboardStats } from "../../api/dashboard";
 import { getAppointments } from "../../api/appointments";
+import LoadingSpinner from "../../components/Loading";
+
 
 export default function DoctorDashboard() {
   const [stats, setStats] = useState(null);
@@ -32,10 +34,8 @@ export default function DoctorDashboard() {
   if (loading) {
     return (
       <MainLayout>
-        <div className="pt-24 text-center text-gray-500">
-          Loading dashboard...
-        </div>
-      </MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
     );
   }
 

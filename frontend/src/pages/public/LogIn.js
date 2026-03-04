@@ -11,22 +11,19 @@ export default function LogIn() {
 
   const navigate = useNavigate();
 
-  // 🔹 Redirect if already logged in
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
-    if (token && role) {
-      if (role === "ROLE_DOCTOR") {
-        navigate("/dashboard/doctor");
-      } else if (role === "ROLE_PATIENT") {
-        navigate("/dashboard/patient");
-      } else if (role === "ROLE_ADMIN") {
-        navigate("/dashboard/admin");
-      }
-    }
-  }, [navigate]);
+    if (!token || !role) return;
 
+    if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor");
+    else if (role === "ROLE_PATIENT") navigate("/dashboard/patient");
+    else if (role === "ROLE_ADMIN") navigate("/dashboard/admin");
+
+  }, [navigate]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");

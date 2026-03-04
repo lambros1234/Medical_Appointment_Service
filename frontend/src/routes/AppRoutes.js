@@ -10,6 +10,7 @@ import Home from "../pages/public/Home";
 import PatientDashboard from "../pages/dashboard/PatientDashboard";
 import DoctorDashboard from "../pages/dashboard/DoctorDashboard";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import AdminAppointments from "../pages/admin/AdminAppointments";
 
 export default function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/patient" element={<PatientDashboard />} />
       <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
       <Route path="/dashboard/admin" element={<AdminDashboard />} />
+      <Route path="/admin/appointments" element={<AdminAppointments />} />
     </Routes>
   );
 }
