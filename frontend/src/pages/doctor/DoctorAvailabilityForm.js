@@ -4,6 +4,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
 import AlertDialog from "../../components/SuccessAlert";
+import LoadingSpinner from "../../components/Loading";
 import {
   MenuItem,
   Select,
@@ -31,6 +32,8 @@ export default function DoctorAvailabilityForm() {
   const [endTime, setEndTime] = useState(dayjs("12:00", "HH:mm"));
   const [availabilities, setAvailabilities] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
 
   const days = [
     "MONDAY",
@@ -49,6 +52,8 @@ export default function DoctorAvailabilityForm() {
         setAvailabilities(data);
       } catch (err) {
         console.error("Failed to fetch availability", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -87,6 +92,14 @@ export default function DoctorAvailabilityForm() {
       console.error("Failed to delete availability", err);
     }
   };
+  
+   if (loading) {
+    return (
+      <MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
+    );
+  }
 
   return (
     <MainLayout>

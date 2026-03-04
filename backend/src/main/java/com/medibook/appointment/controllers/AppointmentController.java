@@ -27,6 +27,12 @@ public class AppointmentController {
         this.appointmentRepository = appointmentRepository;
     }
 
+    @GetMapping("/admin/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AppointmentResponseDTO>> getAllAppointments() {
+        return ResponseEntity.ok(appointmentService.getAppointments());
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<AppointmentResponseDTO>> getMyAppointments(Authentication authentication) {
         String email = ((UserDetailsImpl) authentication.getPrincipal()).getEmail();

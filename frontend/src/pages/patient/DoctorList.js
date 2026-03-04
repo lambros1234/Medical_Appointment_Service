@@ -34,13 +34,20 @@ export default function DoctorsList() {
     fetchDoctors();
   }, []);
 
+  
   const filteredDoctors = useMemo(() => {
     return doctors.filter((doc) =>
-      (doc.username || "").toLowerCase().includes(search.toLowerCase())
+      (doc.username || "").toLowerCase().includes(search.toLowerCase()) 
     );
   }, [search, doctors]);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return (
+      <MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
+    );
+  }
 
   return (
     <MainLayout>

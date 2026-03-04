@@ -2,7 +2,13 @@ import { api } from "./apiClient";
 
 const APPOINTMENT_URL = "/appointment";
 
-// Fetch appointments
+// Admin-only: Get all appointments
+export const getAllAppointments = async () => {
+  const res = await api.get(`${APPOINTMENT_URL}/admin/all`);
+  return res.data;
+};
+
+// Fetch user's appointments
 export async function getAppointments() {
   const response = await api.get(`${APPOINTMENT_URL}/my`);
   return response.data;

@@ -33,9 +33,8 @@ export default function AppointmentsList() {
     try {
       await cancelAppointment(appointmentId);
 
-      // ✅ functional update prevents stale state issues
+      // Remove the cancelled appointment from the list
       setAppointments((prev) => prev.filter((a) => a.id !== appointmentId));
-
       setAlertTitle("Success");
       setAlertMessage("Appointment cancelled successfully");
       setAlertOpen(true);
@@ -47,7 +46,13 @@ export default function AppointmentsList() {
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) {
+    return (
+      <MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
+    );
+  }
 
   return (
     <MainLayout>

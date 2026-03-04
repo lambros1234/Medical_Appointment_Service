@@ -16,12 +16,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notifications")
 public class NotificationController {
-    private final UserService userService;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
 
-    public NotificationController(UserService userService, NotificationService notificationService, NotificationRepository notificationRepository) {
-        this.userService = userService;
+    public NotificationController(NotificationService notificationService, NotificationRepository notificationRepository) {
         this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
     }

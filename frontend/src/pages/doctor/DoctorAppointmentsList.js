@@ -19,7 +19,7 @@ export default function DoctorAppointmentsList() {
     const fetchData = async () => {
       try {
         const data = await getAppointments();
-        const normalized = data.map((a) => ({
+        const normalized = data.map((a) => ({ // Normalize id field
           ...a,
           id: a.id || a._id,
         }));
@@ -36,6 +36,7 @@ export default function DoctorAppointmentsList() {
     fetchData();
   }, []);
 
+  // Helper to update appointment status in state
   const updateStatus = (appointmentId, newStatus) => {
     const updated = appointments.map((a) =>
       a.id === appointmentId ? { ...a, status: newStatus } : a
@@ -79,8 +80,13 @@ export default function DoctorAppointmentsList() {
     CANCELLED: "bg-red-100 text-red-700",
   };
 
-  if (loading) return <LoadingSpinner />;
-
+  if (loading) {
+    return (
+      <MainLayout>
+        <LoadingSpinner />
+      </MainLayout> 
+    );
+  }
   return (
     <MainLayout>
       <AlertDialog

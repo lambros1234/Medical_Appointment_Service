@@ -107,8 +107,20 @@ public class AppointmentService {
         }
     }
 
-    public List<Appointment> getAppointments() {
-        return appointmentRepository.findAll();
+    public List<AppointmentResponseDTO> getAppointments() {
+        List<Appointment> appointments = appointmentRepository.findAll();
+
+        // Map to DTOs
+        List<AppointmentResponseDTO> dtos = appointments.stream()
+                .map(this::getAppointmentResponseDTO)   // assuming you already have this method
+                .toList();
+
+        // Sort by date then time
+        return dtos.stream()
+                .sorted(Comparator
+                        .comparing(AppointmentResponseDTO::getDate)
+                        .thenComparing(AppointmentResponseDTO::getTime))
+                .toList();
     }
 
     public Optional<Appointment> getAppointmentById(final Long appointment_id) {
@@ -163,7 +175,7 @@ public class AppointmentService {
                 .map(this::getAppointmentResponseDTO)   // assuming you already have this method
                 .toList();
 
-        // Optional: sort by date then time (remove if you don’t want sorting)
+        // Sort by date then time
         return dtos.stream()
                 .sorted(Comparator
                         .comparing(AppointmentResponseDTO::getDate)
