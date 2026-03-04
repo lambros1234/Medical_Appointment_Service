@@ -11,6 +11,7 @@ import PatientDashboard from "../pages/dashboard/PatientDashboard";
 import DoctorDashboard from "../pages/dashboard/DoctorDashboard";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import AdminAppointments from "../pages/admin/AdminAppointments";
+import SettingsPage from "../pages/settings/SettingsPage";
 
 export default function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export default function AppRoutes() {
       <Route path="/dashboard/doctor" element={<DoctorDashboard />} />
       <Route path="/dashboard/admin" element={<AdminDashboard />} />
       <Route path="/admin/appointments" element={<AdminAppointments />} />
+      <Route path="/settings" element={<SettingsPage />} />
     </Routes>
   );
 }

@@ -1,6 +1,8 @@
 package com.medibook.appointment.controllers;
 
+import com.medibook.appointment.dto.UpdateProfileDTO;
 import com.medibook.appointment.dto.UserDTO;
+import com.medibook.appointment.dto.UserProfileDTO;
 import com.medibook.appointment.entities.Role;
 import com.medibook.appointment.entities.User;
 import com.medibook.appointment.repositories.RoleRepository;
@@ -10,6 +12,7 @@ import com.medibook.appointment.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -111,6 +114,19 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
         }
+    }
+
+    // Settings
+    @GetMapping("/profile")
+    public UserProfileDTO getProfile(Authentication authentication) {
+        String username = authentication.getName();
+        return userService.getProfile(username);
+    }
+
+    @PutMapping("/profile")
+    public UserProfileDTO updateProfile(@RequestBody UpdateProfileDTO dto, Authentication authentication) {
+        String username = authentication.getName();
+        return userService.updateProfile(username, dto);
     }
 
 
