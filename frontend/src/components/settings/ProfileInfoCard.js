@@ -26,7 +26,7 @@ export default function ProfileInfoCard() {
   const loadProfile = async () => {
     try {
       const data = await getProfile();
-      console.log("Profile data:", data);
+      
       setProfile(data);
     } catch (err) {
       console.error("Failed to load profile", err);

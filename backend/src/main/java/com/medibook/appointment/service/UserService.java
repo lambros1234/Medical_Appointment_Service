@@ -22,10 +22,10 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private UserMapper userMapper;
-    EmailService emailService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserMapper userMapper;
+    private final EmailService emailService;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository,  UserMapper userMapper,  EmailService emailService) {
         this.userRepository = userRepository;

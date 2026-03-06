@@ -12,6 +12,7 @@ export default function LogIn() {
   const navigate = useNavigate();
 
 
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
@@ -22,26 +23,27 @@ export default function LogIn() {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const now = Date.now() / 1000;
 
-      // Token expired
       if (payload.exp < now) {
         localStorage.clear();
         return;
       }
 
-      // Token valid → redirect
-      if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor");
-      else if (role === "ROLE_PATIENT") navigate("/dashboard/patient");
-      else if (role === "ROLE_ADMIN") navigate("/dashboard/admin");
+      // redirect only if token exists AND is valid
+      if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor", { replace: true });
+      else if (role === "ROLE_PATIENT") navigate("/dashboard/patient", { replace: true });
+      else if (role === "ROLE_ADMIN") navigate("/dashboard/admin", { replace: true });
 
-    } catch (err) {
+    } catch {
       localStorage.clear();
     }
-
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
+      
+    // Clear any previous login session
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
 
     try {
       const data = await Login(username, password);
@@ -89,6 +91,8 @@ export default function LogIn() {
             required
           />
         </div>
+
+
 
         <button type="submit" className="submit">
           Sign in
