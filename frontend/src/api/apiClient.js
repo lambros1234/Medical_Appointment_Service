@@ -17,12 +17,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // token expired or invalid
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("username");
 
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+
+      localStorage.clear();
       window.location.href = "/login";
     }
 

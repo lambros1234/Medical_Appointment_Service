@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { getProfile, updateProfile } from "../../api/settings";
+import AlertDialog from "../SuccessAlert";
+import LoadingSpinner from "../Loading";
 
 export default function ProfileInfoCard() {
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [profile, setProfile] = useState({
     firstName: "",
@@ -10,6 +15,7 @@ export default function ProfileInfoCard() {
     phone: "",
     address: ""
   });
+  
 
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +45,10 @@ export default function ProfileInfoCard() {
   const handleSave = async () => {
     try {
       await updateProfile(profile);
-      alert("Profile updated successfully");
+      setAlertTitle("Success!");
+      setAlertMessage("Profile updated successfully");
+      setAlertOpen(true);
+      
     } catch (err) {
       console.error("Failed to update profile", err);
     }
@@ -47,14 +56,18 @@ export default function ProfileInfoCard() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        Loading profile...
-      </div>
+      <LoadingSpinner /> 
     );
   }
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <AlertDialog
+        open={alertOpen}
+        title={alertTitle}
+        message={alertMessage}
+        onClose={() => setAlertOpen(false)}
+      />
 
       <h2 className="text-lg font-semibold mb-4">
         Personal Information

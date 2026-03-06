@@ -18,12 +18,27 @@ export default function LogIn() {
 
     if (!token || !role) return;
 
-    if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor");
-    else if (role === "ROLE_PATIENT") navigate("/dashboard/patient");
-    else if (role === "ROLE_ADMIN") navigate("/dashboard/admin");
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Date.now() / 1000;
+
+      // Token expired
+      if (payload.exp < now) {
+        localStorage.clear();
+        return;
+      }
+
+      // Token valid → redirect
+      if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor");
+      else if (role === "ROLE_PATIENT") navigate("/dashboard/patient");
+      else if (role === "ROLE_ADMIN") navigate("/dashboard/admin");
+
+    } catch (err) {
+      localStorage.clear();
+    }
 
   }, [navigate]);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -31,23 +46,12 @@ export default function LogIn() {
     try {
       const data = await Login(username, password);
 
-      // Store auth data
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("role", data.roles[0]); // store clean role
-      localStorage.setItem("username", data.username);
-
       const role = data.roles[0];
 
-      // 🔹 Redirect based on role
-      if (role === "ROLE_DOCTOR") {
-        navigate("/dashboard/doctor");
-      } else if (role === "ROLE_PATIENT") {
-        navigate("/dashboard/patient");
-      } else if (role === "ROLE_ADMIN") {
-        navigate("/dashboard/admin");
-      } else {
-        navigate("/");
-      }
+      if (role === "ROLE_DOCTOR") navigate("/dashboard/doctor");
+      else if (role === "ROLE_PATIENT") navigate("/dashboard/patient");
+      else if (role === "ROLE_ADMIN") navigate("/dashboard/admin");
+      else navigate("/");
 
     } catch (err) {
       setErrorMessage(err.message || "Login failed");

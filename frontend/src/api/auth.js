@@ -4,22 +4,30 @@ export const Login = async (username, password) => {
   try {
     const res = await api.post("/auth/signin", { username, password });
 
-    localStorage.setItem("token", res.data.accessToken);
+    const data = res.data;
 
-    // Store roles as JSON array (more robust than roles[0])
-    localStorage.setItem("roles", JSON.stringify(res.data.roles || []));
+    // Clear any previous session data
+    localStorage.clear();
 
-    // Optional: if you still want "role" for quick access, keep it too
-    localStorage.setItem("role", (res.data.roles && res.data.roles[0]) || "");
+    // Store token
+    localStorage.setItem("token", data.accessToken);
 
-    // IDs (store only if not null/undefined)
-    if (res.data.patientID != null) localStorage.setItem("patientID", String(res.data.patientID));
-    else localStorage.removeItem("patientID");
+    // Store roles safely
+    const roles = data.roles || [];
+    localStorage.setItem("roles", JSON.stringify(roles));
+    localStorage.setItem("role", roles[0] || "");
 
-    if (res.data.doctorID != null) localStorage.setItem("doctorID", String(res.data.doctorID));
-    else localStorage.removeItem("doctorID");
+    // Store IDs only if they exist
+    if (data.patientID) {
+      localStorage.setItem("patientID", String(data.patientID));
+    }
 
-    return res.data;
+    if (data.doctorID) {
+      localStorage.setItem("doctorID", String(data.doctorID));
+    }
+
+    return data;
+
   } catch (err) {
     const data = err.response?.data;
     throw new Error(data?.message || data?.error || "Login failed");
