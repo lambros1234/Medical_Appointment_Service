@@ -1,18 +1,18 @@
-# 🏥 Medical Appointment Service
+#  Medical Appointment Service
 
-🚧 This project is actively under development.
+This project is actively under development.
 New features, UI improvements, and architectural enhancements are continuously being added.
 
-## 📌 Overview
+## Overview
 Medical Appointment Service is a full-stack web application designed to streamline healthcare scheduling and management.
 
 It provides a secure backend and dynamic role-based frontend, allowing seamless interaction between:
-- 🧑‍⚕️ Doctors
-- 🧑 Patients
-- 🛠️ Administrators
+- Doctors
+- Patients
+- Administrators
 The system supports secure authentication, appointment booking, real-time status updates, and email notifications.
  
-## 🚀 Tech Stack
+## Tech Stack
 ### Backend
 - Java
 - Spring Boot
@@ -29,26 +29,26 @@ The system supports secure authentication, appointment booking, real-time status
 - Docker
 - Docker Compose
 
-## ✨ Features 
-### 🔐 Authentication & Authorization
+## Features 
+### Authentication & Authorization
 - JWT-based authentication
 - Role-based access control
 - Account approval system (Admin-controlled)
-### 👥 Role-Based Actions
-#### 🧑 Patient
+### Role-Based Actions
+#### Patient
 - Browse doctors
 - Book appointments
 - Cancel appointments
 - View appointment status
-#### 🧑‍⚕️ Doctor
+#### Doctor
 - Set availability
 - View patient appointments
 - Confirm or cancel appointments
-#### 🛠️ Admin
+#### Admin
 - Manage users
 - Approve accounts
 - Delete users
-#### 📧 Notifications
+#### Notifications
 - Email notifications for
   - Registration
   - Appointment booking
@@ -56,14 +56,14 @@ The system supports secure authentication, appointment booking, real-time status
   - Appointment cancellation
 - In-app notification system 
 
-## 🏗️ Architecture
+## Architecture
 - RESTful API built with Spring Boot
 - JWT Authentication with role-based authorization
 - React SPA frontend with protected routes
 - PostgreSQL relational database
 - Dockerized services using Docker Compose
 
-## 📂 Project Structure (Monorepo)
+## Project Structure (Monorepo)
 ```text  
   Medical_Appointment_Service/
   │
@@ -73,18 +73,18 @@ The system supports secure authentication, appointment booking, real-time status
   └── README.md
 ```
 
-## ⚙️ Installation
-### 1️⃣ Clone the repository
+## Installation
+### Clone the repository
 ```bash
 git clone https://github.com/chalatsis2004/Medical_Appointment_Service
 cd Medical_Appointment_Service
 ```
-### 2️⃣ Start the application
+### Start the application
 ```bash
 docker-compose up --build
 ```
 
-## 🌐 Services
+## Services
 After running Docker:
 | Service       | URL                    |
 | ------------- | ---------------------- |
@@ -93,7 +93,7 @@ After running Docker:
 | MailHog       | http://localhost:8025  |
 | PostgreSQL    | localhost:5432         |
 
-## 🗄️ Database Setup
+## Database Setup
 This project uses PostgreSQL
 
 If you already have PostgreSQL running: 
@@ -119,7 +119,7 @@ Then restart:
 docker-compose up --build
 ```
 
-## 🔑 Default Credentials (Testing)
+## Default Credentials (Testing)
 You can register new users via the frontend
 
 Default admin account:
@@ -132,7 +132,7 @@ Available Roles:
 - ROLE_DOCTOR
 - ROLE_PATIENT
 
-## 🔌 Example API Endpoint
+## Example API Endpoint
 ### Create Appointment
 #### Post /api/appointment
 ```json
@@ -150,7 +150,7 @@ Response:
 }
 ```
 
-## 📸 Screenshots
+## Screenshots
 ### Landing Page
 <img width="1919" height="970" alt="image" src="https://github.com/user-attachments/assets/a52d0361-62a9-4f47-abaf-86f15a6e77d4" />
 
@@ -163,7 +163,7 @@ Response:
 ### Patient Dashboard
 <img width="1919" height="983" alt="image" src="https://github.com/user-attachments/assets/ae80350b-6fad-4558-ad62-e1cfc17e8362" />
 
-## 🔮 Future Improvements
+## Future Improvements
 - Real-time notifications (WebSockets)
 - Appointment Reminders
 - Payment Integration
@@ -172,7 +172,7 @@ Response:
 - Unit & integration testing
 - Calendar sync (Google Calendar)
 
-## 🎯 Why This Project Matters
+## Why This Project Matters
 This project demonstrates:
 - Full-stack development
 - Secure authentication & authorization
@@ -181,12 +181,12 @@ This project demonstrates:
 - Containerization with Docker
 - Real-world business logic implementation
 
-## 📬 Contact
+## Contact
 If you'd like to connect or discuss this project:
 - GitHub: https://github.com/LamprosChalatsis
 - Email: lambroshalatsis154@gmail.com
 
-## ⭐ Final Notes
+## Final Notes
 This project is continuously evolving and serves as a real-world demonstration of modern full-stack architecture using Spring Boot and React.
 
 Contributions, feedback, and suggestions are welcome!
